@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.vite/
+
+*.log
+*.tmp
+
+# Local verification and acquisition screenshots
+*.png
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

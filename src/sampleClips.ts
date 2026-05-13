@@ -1,0 +1,67 @@
+import { Clip, DensityBand, Role } from "./types";
+
+const sample = (
+  id: string,
+  name: string,
+  file: string,
+  role: Role,
+  bpm: number,
+  key: string | undefined,
+  density: DensityBand,
+  weirdness: number,
+  probability: number,
+  color: string,
+  moods: string[],
+): Clip => ({
+  id,
+  name,
+  role,
+  kind: "sample",
+  sampleUrl: `/samples/${file}`,
+  bars: bpm >= 130 ? 1 : 2,
+  probability,
+  weirdness,
+  density,
+  moods: key ? [...moods, key] : moods,
+  returnToSilenceChance: role === "texture" || role === "noise" ? 0.35 : 0.48,
+  color,
+});
+
+export const SAMPLE_CLIPS: Clip[] = [
+  sample("lc-drums-trip-delay", "Trip Delay Drums", "YEN_82_Song02_TripDelay_Drums_Full_2.wav", "drums", 82, undefined, "medium", 0.22, 0.88, "#d56a44", ["downtempo", "anchor"]),
+  sample("lc-drums-trip-out", "Trip Out Live Drums", "XMK_75_TripOut_2_Live_Drums_2_2.wav", "drums", 75, undefined, "medium", 0.18, 0.82, "#bc8257", ["soul", "loose"]),
+  sample("lc-drums-afro-trip", "Afro Trip Drums", "wt_ahd_drums_loop_trip_full_128.wav", "drums", 128, undefined, "high", 0.36, 0.45, "#cf7650", ["busier", "lift"]),
+  sample("lc-perc-psy-triplet", "Triplet Perc", "hptm_percussion_loop_13_TRIPLE_140.wav", "percussion", 140, undefined, "high", 0.54, 0.5, "#a8a24f", ["restless", "triplet"]),
+  sample("lc-fill-glitch-perc", "Glitch Perc Trip", "HMTH_Glitch_Perc_Oneshot_TRIP_05.wav", "fills", 0, undefined, "high", 0.88, 0.28, "#cf5e67", ["rare", "glitch"]),
+  sample("lc-texture-em-trippy", "Em Trippy Texture", "TRO_124_Em_Trippy_Texture.wav", "texture", 124, "Em", "medium", 0.48, 0.48, "#6796b6", ["trippy", "keyed"]),
+
+  sample("lc-synth-am-triplet", "Am Triplet Synth", "SPI001_98_Am_TripletSynth_01.wav", "chords", 98, "Am", "medium", 0.34, 0.62, "#c79a52", ["minor", "pulse"]),
+  sample("lc-vocal-g-gated", "G Gated Vocal", "SFSY_138_G_Gated_Vocal_23__Triplet_.wav", "vocal", 138, "G", "high", 0.7, 0.32, "#b96f8a", ["gated", "rare"]),
+  sample("lc-vocal-e-gated", "E Gated Voice", "SMNT_138_E_Gated_Voice_14__Triplet___Dry_.wav", "vocal", 138, "E", "high", 0.68, 0.34, "#b96f8a", ["gated", "dry"]),
+  sample("lc-fill-e-synth", "E Synth Fill", "SPMV_138_E_Synth_Fill_17__Triplet_.wav", "fills", 138, "E", "high", 0.78, 0.32, "#cf5e67", ["triplet", "collapse"]),
+  sample("lc-chords-c-triplet-arp", "C Triplet Arp", "BIC_125_C_Triplet_Arp_Syn_1.wav", "chords", 125, "C", "medium", 0.42, 0.56, "#c79a52", ["arp", "keyed"]),
+
+  sample("lc-piano-cm-jammer", "Cm Jammer Piano", "CLTH_126_Cm_Jammer_Piano_Melody.wav", "chords", 126, "Cm", "medium", 0.3, 0.62, "#c79a52", ["piano", "latin"]),
+  sample("lc-piano-em-pop", "Em Pop Piano", "FLPP_120_Em_Pop_Piano_02_Pt3.wav", "chords", 120, "Em", "medium", 0.24, 0.66, "#d0aa61", ["piano", "pretty"]),
+  sample("lc-piano-am-sinful", "Am Sinful Piano", "YMS_130_Am_Sinful_Piano.wav", "chords", 130, "Am", "medium", 0.36, 0.58, "#c79a52", ["piano", "dark"]),
+  sample("lc-piano-c-iowa", "C Piano Iowa", "SS_OK_95_C_Piano_Iowa.wav", "chords", 95, "C", "low", 0.2, 0.68, "#d0aa61", ["piano", "sparse"]),
+  sample("lc-piano-g-eb-c", "G Eb C Piano", "Js_Piano_90_GEbC_1.wav", "chords", 90, "G", "low", 0.24, 0.56, "#d0aa61", ["jazz", "smoky"]),
+
+  sample("lc-bass-a-electric", "A Electric Bass", "NDC_118_A_Electric_Bass_Kit_01.wav", "bass", 118, "A", "medium", 0.22, 0.72, "#609a7b", ["electric", "groove"]),
+  sample("lc-bass-gm-synth", "Gm Synth Bass", "YLX_126_Gm_Synth_Bass.wav", "bass", 126, "Gm", "medium", 0.32, 0.58, "#609a7b", ["synth", "minor"]),
+  sample("lc-bass-cm", "Cm Bass", "MM_NBT_126_Cm_Bass_015.wav", "bass", 126, "Cm", "medium", 0.26, 0.62, "#609a7b", ["techno", "minor"]),
+  sample("lc-bass-emaj-dusty", "Emaj Dusty Bass", "OC_95_Emaj_Dusty_Roads_Bass_Guitar_02_1.wav", "bass", 95, "Emaj", "low", 0.18, 0.7, "#6fa783", ["dusty", "guitar"]),
+  sample("lc-bass-g-chord", "G Bass Chord", "YFC_G_Bass_Gtr_Chord_3.wav", "bass", 0, "G", "low", 0.34, 0.36, "#75ad89", ["one-shot", "chord"]),
+  sample("lc-bass-e-saturated", "E Saturated Bass", "KEM_E_Saturated_Synth_Bass.wav", "bass", 0, "E", "high", 0.58, 0.28, "#609a7b", ["one-shot", "grit"]),
+  sample("lc-bass-e-flangus", "E Flangus Bass", "X1L_E_Kit2_Flangus_Syn_Bass.wav", "bass", 0, "E", "high", 0.62, 0.26, "#609a7b", ["one-shot", "weird"]),
+  sample("lc-bass-d-black-sands", "D Black Sands Bass", "XOD_90_D_BlackSands_Syn_Bass.wav", "bass", 90, "D", "low", 0.3, 0.5, "#609a7b", ["dark", "slow"]),
+
+  sample("lc-noise-lft75", "75 Vinyl Crackle", "LFT_75_Vinyl_Crackle_Noise_Texture_FX_Loop_1.wav", "noise", 75, undefined, "low", 0.3, 0.78, "#8f80ba", ["vinyl", "lofi"]),
+  sample("lc-noise-ulh90", "90 Turntable Noise", "ULH_90_Turntable_Vinyl_LoFi_Noise_Texture_2.wav", "noise", 90, undefined, "low", 0.28, 0.72, "#8f80ba", ["turntable", "lofi"]),
+  sample("lc-noise-mel80", "80 Vinyl Noise", "MEL_80_Vinyl_Noise_FX_Texture_Loop.wav", "noise", 80, undefined, "low", 0.22, 0.74, "#8f80ba", ["vinyl", "soft"]),
+  sample("lc-noise-faded-frame", "Faded Vinyl Noise", "FFC_Texture_X_VinylNoise_FA.wav", "texture", 0, undefined, "low", 0.36, 0.5, "#6796b6", ["vinyl", "faded"]),
+  sample("lc-noise-dm-squeezy", "Dm Squeezy Vinyl", "MCB_85_Dm_Squeezy_Vinyl_Noise_Texture.wav", "texture", 85, "Dm", "low", 0.42, 0.48, "#6796b6", ["vinyl", "squeezy"]),
+  sample("lc-noise-lft85", "85 Vinyl Crackle", "LFT_85_Vinyl_Crackle_Noise_Texture_FX_Loop_2.wav", "noise", 85, undefined, "low", 0.32, 0.7, "#8f80ba", ["vinyl", "crackle"]),
+  sample("lc-noise-lhd2", "Lofi Drum Noise", "LHD2_85_Vinyl_Noise_Texture_Loop.wav", "noise", 85, undefined, "low", 0.26, 0.68, "#8f80ba", ["vinyl", "bed"]),
+  sample("lc-noise-blue-vibe", "Blue Vibe Texture", "Texture_Vinyl_Noise_03_DBR_BVAT.wav", "texture", 0, undefined, "low", 0.4, 0.46, "#6796b6", ["ambient", "vinyl"]),
+];

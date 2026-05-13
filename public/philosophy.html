@@ -1,0 +1,726 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>JamPad Field Guide</title>
+    <style>
+      :root {
+        color: #171717;
+        background: #ede8dc;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        --ink: #171717;
+        --muted: #656158;
+        --paper: #f7f1e4;
+        --line: rgba(23, 23, 23, 0.16);
+        --yellow: #f2c744;
+        --red: #c9493d;
+        --blue: #496f9d;
+        --green: #5d8d6d;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background:
+          linear-gradient(180deg, rgba(237, 232, 220, 0.96), rgba(219, 211, 194, 0.98)),
+          repeating-linear-gradient(90deg, rgba(23, 23, 23, 0.035) 0 1px, transparent 1px 16px);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      main {
+        width: min(1180px, calc(100% - 28px));
+        margin: 0 auto;
+        padding: 24px 0 48px;
+      }
+
+      header {
+        min-height: 78vh;
+        display: grid;
+        align-content: space-between;
+        gap: 24px;
+        border-bottom: 5px solid var(--ink);
+        padding: 28px 0 22px;
+      }
+
+      .masthead {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 0.42fr);
+        gap: 24px;
+        align-items: end;
+      }
+
+      .issue {
+        width: max-content;
+        max-width: 100%;
+        padding: 6px 10px;
+        border: 2px solid var(--ink);
+        background: var(--yellow);
+        font-size: 0.78rem;
+        font-weight: 950;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        max-width: 920px;
+        margin: 16px 0 0;
+        font-size: clamp(3rem, 10vw, 8.2rem);
+        line-height: 0.84;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      .deck {
+        border-left: 5px solid var(--red);
+        padding-left: 16px;
+        color: #282723;
+        font-size: clamp(1.05rem, 2.2vw, 1.45rem);
+        line-height: 1.25;
+        font-weight: 720;
+      }
+
+      .quickIndex {
+        display: grid;
+        gap: 8px;
+        padding: 16px;
+        border: 2px solid var(--ink);
+        background: var(--paper);
+      }
+
+      .quickIndex p {
+        margin: 0 0 4px;
+        color: var(--muted);
+        font-size: 0.75rem;
+        font-weight: 950;
+        text-transform: uppercase;
+      }
+
+      .quickIndex a {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        border-top: 1px solid var(--line);
+        padding-top: 8px;
+        font-size: 0.88rem;
+        font-weight: 850;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+
+      .editorial {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .stat {
+        min-height: 110px;
+        border: 2px solid var(--ink);
+        padding: 12px;
+        background: #fff9ea;
+      }
+
+      .stat span {
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-weight: 950;
+        text-transform: uppercase;
+      }
+
+      .stat strong {
+        display: block;
+        margin-top: 8px;
+        font-size: clamp(1.6rem, 4vw, 3rem);
+        line-height: 0.95;
+      }
+
+      section {
+        padding: 34px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .sectionHeader {
+        display: grid;
+        grid-template-columns: minmax(0, 0.34fr) minmax(0, 1fr);
+        gap: 24px;
+        margin-bottom: 18px;
+      }
+
+      .sectionHeader h2 {
+        margin: 0;
+        font-size: clamp(1.8rem, 5vw, 4.2rem);
+        line-height: 0.9;
+        text-transform: uppercase;
+      }
+
+      .sectionHeader p {
+        margin: 0;
+        color: #2c2a25;
+        font-size: 1.08rem;
+        line-height: 1.45;
+        font-weight: 620;
+      }
+
+      .pillRow,
+      .tagRow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .pill,
+      .tag {
+        border: 1px solid var(--ink);
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: var(--paper);
+        font-size: 0.74rem;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      .tag {
+        border-radius: 4px;
+        background: #171717;
+        color: #f6f0e3;
+      }
+
+      .themeGrid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .themeCard {
+        display: grid;
+        align-content: start;
+        min-height: 420px;
+        border: 2px solid var(--ink);
+        background: var(--paper);
+      }
+
+      .themeCard .band {
+        min-height: 14px;
+        background: var(--accent);
+        border-bottom: 2px solid var(--ink);
+      }
+
+      .themeBody {
+        padding: 16px;
+      }
+
+      .themeCard h3 {
+        margin: 0 0 10px;
+        font-size: 1.6rem;
+        line-height: 0.96;
+        text-transform: uppercase;
+      }
+
+      .themeCard p {
+        margin: 0 0 16px;
+        color: #34312b;
+        line-height: 1.42;
+        font-weight: 560;
+      }
+
+      .branchList {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .branchList li {
+        border-top: 1px solid var(--line);
+        padding-top: 8px;
+        font-size: 0.9rem;
+        line-height: 1.35;
+      }
+
+      .branchList strong {
+        display: block;
+        margin-bottom: 2px;
+        text-transform: uppercase;
+      }
+
+      .catalogue {
+        display: grid;
+        grid-template-columns: repeat(12, 1fr);
+        gap: 12px;
+      }
+
+      .feature {
+        grid-column: span 4;
+        display: grid;
+        gap: 12px;
+        min-height: 260px;
+        border: 1px solid var(--line);
+        border-top: 5px solid var(--accent, var(--ink));
+        padding: 14px;
+        background: rgba(247, 241, 228, 0.78);
+      }
+
+      .feature.wide {
+        grid-column: span 6;
+      }
+
+      .feature.full {
+        grid-column: 1 / -1;
+      }
+
+      .feature h3 {
+        margin: 0;
+        font-size: 1.28rem;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .feature p {
+        margin: 0;
+        color: #3f3b33;
+        line-height: 1.42;
+      }
+
+      .feature ul {
+        display: grid;
+        gap: 6px;
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .feature li {
+        line-height: 1.32;
+      }
+
+      .decisionGrid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .decision {
+        border: 2px solid var(--ink);
+        background: #fff9ea;
+        padding: 14px;
+      }
+
+      .decision h3 {
+        margin: 0 0 8px;
+        text-transform: uppercase;
+      }
+
+      .decision p {
+        margin: 0;
+        color: #3e3b34;
+        line-height: 1.44;
+      }
+
+      .score {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 4px;
+        margin-top: 12px;
+      }
+
+      .score i {
+        height: 10px;
+        background: var(--line);
+      }
+
+      .score i.on {
+        background: var(--accent, var(--yellow));
+      }
+
+      footer {
+        padding: 26px 0 0;
+        color: var(--muted);
+        font-weight: 760;
+      }
+
+      @media (max-width: 900px) {
+        header {
+          min-height: auto;
+        }
+
+        .masthead,
+        .sectionHeader,
+        .themeGrid,
+        .decisionGrid {
+          grid-template-columns: 1fr;
+        }
+
+        .editorial {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .feature,
+        .feature.wide {
+          grid-column: 1 / -1;
+        }
+      }
+
+      @media (max-width: 560px) {
+        main {
+          width: min(100% - 16px, 1180px);
+          padding-top: 8px;
+        }
+
+        .editorial {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div class="masthead">
+          <div>
+            <div class="issue">JamPad Field Guide / Issue 001</div>
+            <h1>Small Box, Deep Machine</h1>
+          </div>
+          <nav class="quickIndex" aria-label="Page index">
+            <p>Browse The Catalogue</p>
+            <a href="#north-star"><span>01</span> North Star</a>
+            <a href="#themes"><span>02</span> Three Tech Trees</a>
+            <a href="#catalogue"><span>03</span> Direction Catalogue</a>
+            <a href="#decisions"><span>04</span> Decision Shelf</a>
+          </nav>
+        </div>
+        <p class="deck">
+          JamPad is a compact generative trip-hop instrument: beginner-friendly on the surface,
+          disproportionately powerful underneath, and opinionated enough to make musical choices
+          without becoming a general-purpose DAW.
+        </p>
+        <div class="editorial">
+          <article class="stat">
+            <span>Current Voice</span>
+            <strong>32</strong>
+            <span>Curated Loopcloud samples</span>
+          </article>
+          <article class="stat">
+            <span>Performance Surface</span>
+            <strong>8</strong>
+            <span>Musical roles</span>
+          </article>
+          <article class="stat">
+            <span>Core Gesture</span>
+            <strong>Play</strong>
+            <span>Then steer, lock, or regenerate</span>
+          </article>
+          <article class="stat">
+            <span>Design Test</span>
+            <strong>Less UI</strong>
+            <span>More musical consequence</span>
+          </article>
+        </div>
+      </header>
+
+      <section id="north-star">
+        <div class="sectionHeader">
+          <h2>North Star</h2>
+          <p>
+            Build a focused probability instrument, not a miniature Ableton. The machine should
+            breathe between silence and material, know the difference between roles, remember recent
+            choices, favor the curated crate, and let a beginner keep good accidents without
+            understanding the whole system.
+          </p>
+        </div>
+        <div class="pillRow">
+          <span class="pill">Curated crate first</span>
+          <span class="pill">Compact hardware feel</span>
+          <span class="pill">Beginner-safe controls</span>
+          <span class="pill">Bar-synced decisions</span>
+          <span class="pill">Tasteful probability</span>
+          <span class="pill">Lock the good part</span>
+          <span class="pill">Silence is musical</span>
+        </div>
+      </section>
+
+      <section id="themes">
+        <div class="sectionHeader">
+          <h2>Three Tech Trees</h2>
+          <p>
+            These are the main development lenses. Every new idea can be placed under one tree,
+            blended across two, or treated as a mutation of all three. Each tree keeps beginner
+            friendliness, hyper usability, and compact power in view.
+          </p>
+        </div>
+        <div class="themeGrid">
+          <article class="themeCard" style="--accent: var(--yellow)">
+            <div class="band"></div>
+            <div class="themeBody">
+              <h3>01. Pocket Instrument</h3>
+              <p>
+                Make JamPad feel like a small piece of hardware that a new user can play in ten
+                seconds, then gradually discover deeper behavior.
+              </p>
+              <ul class="branchList">
+                <li><strong>Surface</strong> Play, Next, Mode, Lock, Mute, Ctrl. Nothing decorative competes.</li>
+                <li><strong>Mutation</strong> Beginner Mode, Performance Mode, and Crate Edit Mode.</li>
+                <li><strong>Payoff</strong> The app looks simple, but every button has musical weight.</li>
+              </ul>
+            </div>
+          </article>
+          <article class="themeCard" style="--accent: var(--green)">
+            <div class="band"></div>
+            <div class="themeBody">
+              <h3>02. Taste Engine</h3>
+              <p>
+                Improve the machine’s musical judgment: key awareness, density arcs, mood memory,
+                role compatibility, and controlled misbehavior.
+              </p>
+              <ul class="branchList">
+                <li><strong>Surface</strong> Users steer mood, density, silence, weirdness, and stability.</li>
+                <li><strong>Mutation</strong> Key lanes, phrase memory, rare-event grammar, and scene moods.</li>
+                <li><strong>Payoff</strong> The output feels directed rather than shuffled.</li>
+              </ul>
+            </div>
+          </article>
+          <article class="themeCard" style="--accent: var(--blue)">
+            <div class="band"></div>
+            <div class="themeBody">
+              <h3>03. Crate Workshop</h3>
+              <p>
+                Make sample selection, tagging, key matching, and role assignment fast enough that
+                users can build their own machine without becoming librarians.
+              </p>
+              <ul class="branchList">
+                <li><strong>Surface</strong> Curated default crate, then import and swap when ready.</li>
+                <li><strong>Mutation</strong> Loopcloud-style search notes, audition stacks, smart tagging, and key locks.</li>
+                <li><strong>Payoff</strong> Personalization feels like browsing a record bin, not maintaining a database.</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section id="catalogue">
+        <div class="sectionHeader">
+          <h2>Direction Catalogue</h2>
+          <p>
+            Browse these like catalogue spreads. None are commitments by themselves; they are
+            proposals to pull into the roadmap when they serve the instrument.
+          </p>
+        </div>
+        <div class="catalogue">
+          <article class="feature wide" style="--accent: var(--yellow)">
+            <div class="tagRow">
+              <span class="tag">Pocket Instrument</span>
+              <span class="tag">Beginner First</span>
+            </div>
+            <h3>One-Screen Performance Mode</h3>
+            <p>
+              A locked-down view for playing: no clip lists, no file concerns, only mode, lanes,
+              locks, mutes, and macro controls.
+            </p>
+            <ul>
+              <li>Great for first-time use and live capture.</li>
+              <li>Pairs well with keyboard shortcuts and MIDI learn.</li>
+              <li>Risk: hiding too much unless `Ctrl` is obvious.</li>
+            </ul>
+          </article>
+
+          <article class="feature wide" style="--accent: var(--green)">
+            <div class="tagRow">
+              <span class="tag">Taste Engine</span>
+              <span class="tag">Key Aware</span>
+            </div>
+            <h3>Home Key And Compatibility</h3>
+            <p>
+              Let the machine know a home key, then prefer compatible bass, chord, texture, and
+              vocal material while leaving drums and noise mostly free.
+            </p>
+            <ul>
+              <li>Beginner label: `Safe Harmony` instead of music theory jargon.</li>
+              <li>Advanced layer: show actual keys and pitch offsets.</li>
+              <li>Mutation: temporary key drift during Collapse.</li>
+            </ul>
+          </article>
+
+          <article class="feature" style="--accent: var(--blue)">
+            <div class="tagRow">
+              <span class="tag">Crate Workshop</span>
+            </div>
+            <h3>Import Wizard</h3>
+            <p>
+              Drop in a folder and let JamPad propose roles, BPM, density, weirdness, and key from
+              file names and audio analysis.
+            </p>
+            <ul>
+              <li>Accept all, review uncertain, or audition by role.</li>
+              <li>Keep the default crate as the fallback voice.</li>
+            </ul>
+          </article>
+
+          <article class="feature" style="--accent: var(--green)">
+            <div class="tagRow">
+              <span class="tag">Taste Engine</span>
+            </div>
+            <h3>Scene Moods</h3>
+            <p>
+              Smoky, Dusty, Underwater, Tense, Pretty, Broken. Moods bias roles and clips without
+              becoming arrangement timelines.
+            </p>
+            <ul>
+              <li>Beginner control: one mood knob or menu.</li>
+              <li>Mutation: Auto drifts every 16 or 32 bars.</li>
+            </ul>
+          </article>
+
+          <article class="feature" style="--accent: var(--yellow)">
+            <div class="tagRow">
+              <span class="tag">Pocket Instrument</span>
+            </div>
+            <h3>Hardware Skin Set</h3>
+            <p>
+              Alternate compact visual skins inspired by sampler eras: black/yellow utility,
+              red/grey performance, cream/blue studio, and night mode.
+            </p>
+            <ul>
+              <li>All skins preserve the same control layout.</li>
+              <li>Style should never cost readability.</li>
+            </ul>
+          </article>
+
+          <article class="feature" style="--accent: var(--green)">
+            <div class="tagRow">
+              <span class="tag">Taste Engine</span>
+              <span class="tag">Usability</span>
+            </div>
+            <h3>Good Accident Capture</h3>
+            <p>
+              When a pattern feels right, one button freezes the current combination as a snapshot
+              or exports a short performance.
+            </p>
+            <ul>
+              <li>Beginner text: `Keep This`.</li>
+              <li>Advanced option: save snapshot with settings and active clip IDs.</li>
+            </ul>
+          </article>
+
+          <article class="feature" style="--accent: var(--blue)">
+            <div class="tagRow">
+              <span class="tag">Crate Workshop</span>
+              <span class="tag">Loopcloud</span>
+            </div>
+            <h3>Crate Shopping Notes</h3>
+            <p>
+              Maintain a living acquisition log: useful searches, point spend, roles bought,
+              harmonic cluster, and what still feels missing.
+            </p>
+            <ul>
+              <li>Current search lesson: short terms plus table metadata beat verbose searches.</li>
+              <li>Keep key matching visible for melodic purchases.</li>
+            </ul>
+          </article>
+
+          <article class="feature" style="--accent: var(--red)">
+            <div class="tagRow">
+              <span class="tag">Architecture</span>
+              <span class="tag">Efficiency</span>
+            </div>
+            <h3>Lazy Audio Loading</h3>
+            <p>
+              Load sample players only when a clip is likely to play, cache recent sounds, and
+              release unused buffers so the app stays light as crates grow.
+            </p>
+            <ul>
+              <li>Protects startup speed.</li>
+              <li>Pairs with role-based preloading.</li>
+            </ul>
+          </article>
+
+          <article class="feature" style="--accent: var(--red)">
+            <div class="tagRow">
+              <span class="tag">Architecture</span>
+              <span class="tag">Timing</span>
+            </div>
+            <h3>Audio Worklet Upgrade</h3>
+            <p>
+              Keep Tone.js while the product is young, but reserve a path for tighter scheduling,
+              metering, and recording if timing pressure grows.
+            </p>
+            <ul>
+              <li>Do this only when current scheduling becomes a real blocker.</li>
+              <li>Avoid premature engine rewrites.</li>
+            </ul>
+          </article>
+
+          <article class="feature full" style="--accent: var(--green)">
+            <div class="tagRow">
+              <span class="tag">Hybrid Mutation</span>
+              <span class="tag">Pocket Instrument + Taste Engine + Crate Workshop</span>
+            </div>
+            <h3>The Disproportionately Powerful Box</h3>
+            <p>
+              The strongest version of JamPad looks modest: eight lanes, a handful of knobs, and
+              one curated crate. Underneath, it has role memory, key-safe selection, scene moods,
+              density arcs, lockable accidents, and smart crate import. The beginner gets music
+              immediately; the expert gets a compact probability instrument with taste.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="decisions">
+        <div class="sectionHeader">
+          <h2>Decision Shelf</h2>
+          <p>
+            Use this shelf when comparing directions. The bars score how strongly each proposal
+            supports beginner friendliness, compactness, and musical consequence.
+          </p>
+        </div>
+        <div class="decisionGrid">
+          <article class="decision" style="--accent: var(--yellow)">
+            <h3>Prioritize: sample crate on load</h3>
+            <p>
+              Default to the curated crate because it makes the product sound intentional before
+              the user has customized anything.
+            </p>
+            <div class="score"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+          </article>
+          <article class="decision" style="--accent: var(--green)">
+            <h3>Next likely build: key-aware selection</h3>
+            <p>
+              Use the existing key metadata to keep bass, chords, textures, and vocals coherent
+              while letting drums and noise remain free.
+            </p>
+            <div class="score"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+          </article>
+          <article class="decision" style="--accent: var(--blue)">
+            <h3>Later: user crate import</h3>
+            <p>
+              Important, but it should arrive after the default instrument feels delightful. The
+              workshop should not bury the first-time player.
+            </p>
+            <div class="score"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><i></i></div>
+          </article>
+          <article class="decision" style="--accent: var(--red)">
+            <h3>Defer: DAW-scale editing</h3>
+            <p>
+              Arrangers, piano rolls, plugin chains, and deep project management are outside the
+              current instrument promise.
+            </p>
+            <div class="score"><i class="on"></i><i></i><i></i><i></i><i></i></div>
+          </article>
+        </div>
+      </section>
+
+      <footer>
+        JamPad Field Guide. Updated 2026-05-12. The living rule: if a feature does
+        not help the machine make, shape, preserve, or interrupt generative trip-hop
+        performances, it waits.
+      </footer>
+    </main>
+  </body>
+</html>
