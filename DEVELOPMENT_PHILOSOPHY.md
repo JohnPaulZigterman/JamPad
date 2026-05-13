@@ -46,6 +46,8 @@ Each lane now has tiny `RND` and `STK` behavior controls. Per-channel randomness
 
 The `Crate Workshop` now includes a 50-sample Loopcloud export import path. Exported/pitch-locked samples may have unreliable filename keys, so their keys are treated as uncertain hints instead of hard harmonic truth.
 
+`Play the Internet` is viable as a speculative Crate Workshop direction if it stays source-aware, license-aware, and user-approved. Public sources such as Internet Archive expose searchable metadata and item file lists, which means JamPad could tune into public-domain or Creative Commons audio, preview fragments, analyze them, and turn approved material into local crate clips. The user should feel like they are loosely playing a strange radio, not like the app is silently scraping unknown copyrighted material.
+
 ## Workflow Rule
 
 Every major direction should be placed on the user workflow map: open, play, steer, intervene, commit, or build. If a feature creates a new path, the Field Guide should show that path before the app grows around it.
@@ -65,3 +67,7 @@ Discovery stays in the foreground. Tutorials should be easy to find and musicall
 ## Cryptic Game Rule
 
 JamPad can be mysterious, but it should never be hostile. The user should sense hidden rules, rewards, and emergent behaviors, while the surface stays playable enough that not knowing the full system remains pleasurable.
+
+## Internet Radio Rule
+
+If JamPad reaches outside the local crate, it must show enough provenance to be trustworthy: source, license, creator/title when available, and why the machine thinks the sound belongs. The control can remain cryptic and musical, but the rights trail cannot.
