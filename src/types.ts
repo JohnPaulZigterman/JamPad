@@ -60,6 +60,12 @@ export type MachineSettings = {
   silence: number;
   weirdness: number;
   stability: number;
+  roleControls: Record<Role, RoleControl>;
+};
+
+export type RoleControl = {
+  randomness: number;
+  stickiness: number;
 };
 
 export type RoleState = {

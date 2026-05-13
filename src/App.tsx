@@ -26,7 +26,7 @@ import {
 } from "./audioEngine";
 import { chooseAutoMode, createInitialSnapshot, decayMemory, generateNextSnapshot, rememberSnapshot } from "./machine";
 import { formatKey } from "./musicTheory";
-import { Clip, DirectorMacro, MachineMode, MachineSettings, MachineSnapshot, Role } from "./types";
+import { Clip, DirectorMacro, MachineMode, MachineSettings, MachineSnapshot, Role, RoleControl } from "./types";
 
 const modeCopy: Record<MachineMode, string> = {
   sparse: "Sparse",
@@ -53,6 +53,17 @@ const directorTell: Record<DirectorMacro, string> = {
   recover: "dropouts and bridges can clear space",
 };
 
+const defaultRoleControls: Record<Role, RoleControl> = {
+  drums: { randomness: 0.32, stickiness: 0.78 },
+  bass: { randomness: 0.34, stickiness: 0.72 },
+  chords: { randomness: 0.42, stickiness: 0.64 },
+  texture: { randomness: 0.46, stickiness: 0.7 },
+  vocal: { randomness: 0.66, stickiness: 0.42 },
+  percussion: { randomness: 0.58, stickiness: 0.48 },
+  noise: { randomness: 0.72, stickiness: 0.36 },
+  fills: { randomness: 0.76, stickiness: 0.28 },
+};
+
 const defaultSettings: MachineSettings = {
   mode: "auto",
   director: "preserve",
@@ -64,6 +75,7 @@ const defaultSettings: MachineSettings = {
   silence: 0.42,
   weirdness: 0.34,
   stability: 0.62,
+  roleControls: defaultRoleControls,
 };
 
 const memoryRef: { current: Record<string, number> } = { current: {} };
@@ -134,18 +146,22 @@ function RoleLane({
   role,
   clips,
   snapshot,
+  controls,
   isExpanded,
   onToggleLock,
   onToggleMute,
   onToggleExpand,
+  onControlChange,
 }: {
   role: Role;
   clips: Clip[];
   snapshot: MachineSnapshot;
+  controls: RoleControl;
   isExpanded: boolean;
   onToggleLock: (role: Role) => void;
   onToggleMute: (role: Role) => void;
   onToggleExpand: (role: Role) => void;
+  onControlChange: (role: Role, partial: Partial<RoleControl>) => void;
 }) {
   const roleState = snapshot[role];
   const activeClip = clips.find((clip) => clip.id === roleState.activeClipId);
@@ -204,6 +220,30 @@ function RoleLane({
       <div className="laneFooter">
         <span>{activeClip?.kind === "sample" ? "Crate" : activeClip?.kind === "silence" ? "Resting" : "Synth"}</span>
         <span>{activeClip?.kind === "silence" ? `${sampleCount} samples` : primaryEcology(activeClip)}</span>
+      </div>
+      <div className="laneMicroControls" aria-label={`${ROLE_LABELS[role]} behavior controls`}>
+        <label>
+          <span>RND</span>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            value={controls.randomness}
+            onChange={(event) => onControlChange(role, { randomness: Number(event.currentTarget.value) })}
+          />
+        </label>
+        <label>
+          <span>STK</span>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.01}
+            value={controls.stickiness}
+            onChange={(event) => onControlChange(role, { stickiness: Number(event.currentTarget.value) })}
+          />
+        </label>
       </div>
       {isExpanded && (
         <div className="clips">
@@ -313,6 +353,18 @@ export function App() {
     });
   };
 
+  const updateRoleControl = (role: Role, partial: Partial<RoleControl>) => {
+    updateSettings({
+      roleControls: {
+        ...settings.roleControls,
+        [role]: {
+          ...settings.roleControls[role],
+          ...partial,
+        },
+      },
+    });
+  };
+
   const sampleClipCount = clips.filter((clip) => clip.kind === "sample").length;
   const activeSampleCount = ROLES.filter((role) => {
     const active = clips.find((clip) => clip.id === snapshot[role].activeClipId);
@@ -415,10 +467,12 @@ export function App() {
               role={role}
               clips={clips}
               snapshot={snapshot}
+              controls={settings.roleControls[role]}
               isExpanded={expandedRoles.has(role)}
               onToggleLock={toggleLock}
               onToggleMute={toggleMute}
               onToggleExpand={toggleExpand}
+              onControlChange={updateRoleControl}
             />
           ))}
         </div>

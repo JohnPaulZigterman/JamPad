@@ -40,6 +40,10 @@ The `Taste Engine` also owns automatic mix hygiene. Samples should be gain-stage
 
 The current hybrid plan is `Faceplate Instrument + Hidden Rules Engine`: build the playable hardware surface first, while quietly wiring musical ecology into the probability machine. The first implementation adds Director macros, hidden-rule tells, and ecology tags that steer anchors, vamps, stingers, ruptures, dropouts, and bridges.
 
+The machine can rest, but it should not go fully dead while playing. If any unmuted lane is available, the generator should preserve at least one sounding channel; total silence should be an intentional user act, not an accidental extended state.
+
+Each lane now has tiny `RND` and `STK` behavior controls. Per-channel randomness should make a lane more exploratory; per-channel stickiness should make clips and rests loop longer. These are faceplate controls because they make the box feel playable without exposing a rules editor.
+
 The `Crate Workshop` now includes a 50-sample Loopcloud export import path. Exported/pitch-locked samples may have unreliable filename keys, so their keys are treated as uncertain hints instead of hard harmonic truth.
 
 ## Workflow Rule

@@ -827,6 +827,7 @@
             <div class="tagRow">
               <span class="tag">Taste Engine</span>
               <span class="tag">Phrasing</span>
+              <span class="tag">Built</span>
             </div>
             <h3>Breathing Loop Memory</h3>
             <p>
@@ -835,8 +836,25 @@
             </p>
             <ul>
               <li>Beginner result: fewer frantic switches.</li>
-              <li>Current build: stronger clip holds, rest holds, and lower return-to-silence churn.</li>
+              <li>Current build: stronger clip holds, rest holds, per-lane stickiness, and lower return-to-silence churn.</li>
               <li>Mutation: Collapse can still cut faster when the user asks for instability.</li>
+            </ul>
+          </article>
+
+          <article class="feature" style="--accent: var(--yellow)">
+            <div class="tagRow">
+              <span class="tag">Pocket Instrument</span>
+              <span class="tag">Built</span>
+            </div>
+            <h3>Lane Behavior Trims</h3>
+            <p>
+              Each lane gets two tiny faceplate trims: RND for exploratory choice and STK for
+              looping/holding behavior. They keep the instrument playable without opening a rules
+              editor.
+            </p>
+            <ul>
+              <li>Beginner result: drums can stay sticky while fills stay unstable.</li>
+              <li>Cryptic-game result: every lane feels like it has a temperament.</li>
             </ul>
           </article>
 
@@ -1462,8 +1480,16 @@
           <article class="decision" style="--accent: var(--green)">
             <h3>Built: calmer phrase behavior</h3>
             <p>
-              Clips and silences now hold more often, so JamPad breathes in short musical phrases
-              instead of constantly re-rolling every bar.
+              Clips and silences now hold more often, with per-lane STK trims so JamPad breathes in
+              short musical phrases instead of constantly re-rolling every bar.
+            </p>
+            <div class="score"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
+          </article>
+          <article class="decision" style="--accent: var(--yellow)">
+            <h3>Built: no accidental dead air</h3>
+            <p>
+              If any unmuted lane is available, the machine now forces at least one sounding clip
+              instead of drifting into total extended silence.
             </p>
             <div class="score"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
           </article>

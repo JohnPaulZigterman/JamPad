@@ -1,4 +1,4 @@
-import { Clip, ClipEcology, DirectorMacro, MachineSettings, MachineSnapshot, Role } from "./types";
+import { Clip, ClipEcology, DirectorMacro, MachineSettings, MachineSnapshot, Role, RoleControl } from "./types";
 import { ROLES } from "./clips";
 import { getKeyMatchWeight, getTempoMatchWeight } from "./musicTheory";
 
@@ -113,6 +113,11 @@ const weightedPick = (items: Array<{ clip: Clip; weight: number }>): Clip => {
   return items[items.length - 1].clip;
 };
 
+const defaultRoleControl: RoleControl = {
+  randomness: 0.5,
+  stickiness: 0.5,
+};
+
 const ecologyWeight = (clip: Clip, director: DirectorMacro, activeClipCount: number) => {
   const profile = directorProfile[director];
   const base = clip.ecology.reduce((weight, ecology) => weight * (profile.ecology[ecology] ?? 1), 1);
@@ -122,6 +127,41 @@ const ecologyWeight = (clip: Clip, director: DirectorMacro, activeClipCount: num
   const quietStinger = activeClipCount <= 2 && clip.ecology.includes("stinger") ? 0.72 : 1;
 
   return clamp(base * overcrowdedDropout * quietStinger, 0.2, 2.4);
+};
+
+const chooseAudibleFallback = (
+  clips: Clip[],
+  snapshot: MachineSnapshot,
+  settings: MachineSettings,
+  targetDensity: number,
+  weirdnessBias: number,
+) => {
+  const fallbackRoles = ROLES.filter((role) => !snapshot[role].muted);
+  const priorityRoles = ["drums", "bass", "texture", "chords", "percussion", "vocal", "noise", "fills"] as Role[];
+  const role = priorityRoles.find((candidate) => fallbackRoles.includes(candidate));
+  if (!role) return snapshot;
+
+  const currentState = snapshot[role];
+  const candidates = clips.filter((clip) => clip.role === role && clip.kind !== "silence");
+  if (candidates.length === 0) return snapshot;
+
+  const control = settings.roleControls[role] ?? defaultRoleControl;
+  const weighted = candidates.map((clip) => {
+    const densityFit = 1 - Math.abs(targetDensity - densityRank[clip.density]);
+    const weirdFit = 1 - Math.abs(clamp(weirdnessBias + (control.randomness - 0.5) * 0.35) - clip.weirdness);
+    const ecologyFit = ecologyWeight(clip, settings.director, 0);
+    const anchorBias = clip.ecology.some((ecology) => ecology === "anchor" || ecology === "vamp") ? 1.28 : 1;
+
+    return {
+      clip,
+      weight: Math.max(0.02, clip.probability * densityFit * weirdFit * ecologyFit * anchorBias),
+    };
+  });
+
+  return {
+    ...snapshot,
+    [role]: { ...currentState, activeClipId: weightedPick(weighted).id },
+  };
 };
 
 export const generateNextSnapshot = (
@@ -149,13 +189,15 @@ export const generateNextSnapshot = (
     const roleState = current[role];
     if (roleState.isLocked || roleState.muted) continue;
 
+    const control = settings.roleControls[role] ?? defaultRoleControl;
     const active = clips.find((clip) => clip.id === roleState.activeClipId);
     const isStableRole = profile.stableRoles.includes(role);
+    const roleWeirdnessBias = clamp(weirdnessBias + (control.randomness - 0.5) * 0.35);
     const keepChance = active?.kind !== "silence"
-      ? clamp(0.28 + stabilityBias * (isStableRole ? 0.82 : 0.62) - weirdnessBias * 0.14)
+      ? clamp(0.12 + stabilityBias * 0.42 + control.stickiness * (isStableRole ? 0.62 : 0.48) - control.randomness * 0.24 - roleWeirdnessBias * 0.1)
       : 0;
     const silenceHoldChance = active?.kind === "silence"
-      ? clamp(0.38 + stabilityBias * 0.42 + silenceBias * 0.25 - weirdnessBias * 0.12)
+      ? clamp(0.14 + stabilityBias * 0.22 + control.stickiness * 0.58 + silenceBias * 0.2 - control.randomness * 0.18 - roleWeirdnessBias * 0.08)
       : 0;
 
     if (active?.kind === "silence" && Math.random() < silenceHoldChance) {
@@ -185,19 +227,20 @@ export const generateNextSnapshot = (
       }
 
       const densityFit = 1 - Math.abs(targetDensity - densityRank[clip.density]);
-      const weirdFit = 1 - Math.abs(weirdnessBias - clip.weirdness);
-      const memoryPenalty = memory[clip.id] ? 0.28 : 1;
+      const weirdFit = 1 - Math.abs(roleWeirdnessBias - clip.weirdness);
+      const memoryPenalty = memory[clip.id] ? clamp(0.16 + control.randomness * 0.24 + control.stickiness * 0.22) : 1;
       const modeBoost = profile.stableRoles.includes(role) ? 1.18 : 1;
       const crateBoost = clip.kind === "sample" ? 1.75 : 0.62;
       const keyFit = getKeyMatchWeight(clip.musicalKey, settings.homeKey, settings.keyLock, clip.keyConfidence);
       const tempoFit = clip.kind === "sample" ? getTempoMatchWeight(clip.bpm, settings.tempo) : 1;
       const ecologyFit = ecologyWeight(clip, settings.director, activeClipCount);
+      const randomJitter = 0.86 + Math.random() * control.randomness * 0.38;
 
       return {
         clip,
         weight: Math.max(
           0.02,
-          clip.probability * densityFit * weirdFit * memoryPenalty * modeBoost * crateBoost * keyFit * tempoFit * ecologyFit,
+          clip.probability * densityFit * weirdFit * memoryPenalty * modeBoost * crateBoost * keyFit * tempoFit * ecologyFit * randomJitter,
         ),
       };
     });
@@ -205,7 +248,13 @@ export const generateNextSnapshot = (
     next[role] = { ...roleState, activeClipId: weightedPick(weighted).id };
   }
 
-  return next;
+  const hasAudibleClip = ROLES.some((role) => {
+    const state = next[role];
+    const active = clips.find((clip) => clip.id === state.activeClipId);
+    return !state.muted && active && active.kind !== "silence";
+  });
+
+  return hasAudibleClip ? next : chooseAudibleFallback(clips, next, settings, targetDensity, weirdnessBias);
 };
 
 export const decayMemory = (memory: Memory) => {

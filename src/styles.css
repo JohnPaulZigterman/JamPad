@@ -404,6 +404,34 @@ h2 {
   text-transform: uppercase;
 }
 
+.laneMicroControls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(242, 240, 234, 0.08);
+}
+
+.laneMicroControls label {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 5px;
+  align-items: center;
+  min-width: 0;
+}
+
+.laneMicroControls span {
+  color: #878787;
+  font-size: 0.58rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.laneMicroControls input[type="range"] {
+  height: 16px;
+}
+
 .clips {
   display: grid;
   grid-template-columns: 1fr;
