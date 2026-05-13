@@ -39,6 +39,7 @@ const defaultSettings: MachineSettings = {
   tempo: 78,
   homeKey: "Cm",
   keyLock: true,
+  autoMix: true,
   density: 0.56,
   silence: 0.42,
   weirdness: 0.34,
@@ -210,8 +211,8 @@ export function App() {
   }, [settings.tempo]);
 
   useEffect(() => {
-    if (isPlaying) syncAudioSnapshot(snapshot, clips, settings.tempo);
-  }, [clips, isPlaying, settings.tempo, snapshot]);
+    if (isPlaying) syncAudioSnapshot(snapshot, clips, settings.tempo, settings.autoMix);
+  }, [clips, isPlaying, settings.autoMix, settings.tempo, snapshot]);
 
   const updateSettings = (partial: Partial<MachineSettings>) => {
     setSettings((current) => ({ ...current, ...partial }));
@@ -393,6 +394,14 @@ export function App() {
                 onChange={(event) => updateSettings({ keyLock: event.currentTarget.checked })}
               />
               <span>Key Lock</span>
+            </label>
+            <label className="toggleControl">
+              <input
+                type="checkbox"
+                checked={settings.autoMix}
+                onChange={(event) => updateSettings({ autoMix: event.currentTarget.checked })}
+              />
+              <span>Auto Mix</span>
             </label>
             <Slider label="Density" value={settings.density} onChange={(density) => updateSettings({ density })} />
             <Slider label="Silence" value={settings.silence} onChange={(silence) => updateSettings({ silence })} />

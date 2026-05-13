@@ -4,9 +4,24 @@ import { ROLES } from "./clips";
 import { getClosestTempoRatio } from "./musicTheory";
 
 type PatternDisposer = () => void;
+type SampleVoice = {
+  player: Tone.Player;
+  gain: Tone.Gain;
+};
 
 const activeParts = new Map<string, PatternDisposer>();
-const players = new Map<string, Tone.Player>();
+const sampleVoices = new Map<string, SampleVoice>();
+
+const roleTargetRms: Record<Clip["role"], number> = {
+  drums: 0.18,
+  bass: 0.15,
+  chords: 0.11,
+  texture: 0.08,
+  vocal: 0.12,
+  percussion: 0.13,
+  noise: 0.06,
+  fills: 0.13,
+};
 
 type AudioGraph = {
   master: Tone.Volume;
@@ -82,10 +97,53 @@ const applySampleTiming = (player: Tone.Player, clip: Clip, tempo: number) => {
   player.playbackRate = getClosestTempoRatio(clip.bpm, tempo);
 };
 
-const startSamplePlayer = (player: Tone.Player, clip: Clip, isDisposed: () => boolean) => {
+const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+const measureBuffer = (buffer: Tone.ToneAudioBuffer) => {
+  let peak = 0;
+  let squareSum = 0;
+  let sampleCount = 0;
+  const stride = Math.max(1, Math.floor(buffer.length / 48000));
+
+  for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+    const data = buffer.getChannelData(channel);
+    for (let index = 0; index < data.length; index += stride) {
+      const value = Math.abs(data[index]);
+      peak = Math.max(peak, value);
+      squareSum += value * value;
+      sampleCount += 1;
+    }
+  }
+
+  return {
+    peak,
+    rms: sampleCount > 0 ? Math.sqrt(squareSum / sampleCount) : 0,
+  };
+};
+
+const getAutoMixGain = (clip: Clip, player: Tone.Player, autoMix: boolean) => {
+  if (!autoMix || clip.kind !== "sample" || !player.buffer.loaded) return 1;
+
+  const { peak, rms } = measureBuffer(player.buffer);
+  if (rms <= 0 || peak <= 0) return 1;
+
+  const target = roleTargetRms[clip.role] * (clip.oneShot ? 0.85 : 1);
+  const rmsGain = target / rms;
+  const peakSafeGain = 0.9 / peak;
+
+  return clamp(Math.min(rmsGain, peakSafeGain), 0.25, 2.4);
+};
+
+const applySampleMix = (voice: SampleVoice, clip: Clip, autoMix: boolean) => {
+  voice.gain.gain.rampTo(getAutoMixGain(clip, voice.player, autoMix), 0.08);
+};
+
+const startSamplePlayer = (voice: SampleVoice, clip: Clip, autoMix: boolean, isDisposed: () => boolean) => {
   Tone.loaded().then(() => {
     if (isDisposed()) return;
 
+    applySampleMix(voice, clip, autoMix);
+    const { player } = voice;
     const stretchedDuration = player.buffer.duration / player.playbackRate;
     const offset = clip.oneShot || stretchedDuration <= 0
       ? 0
@@ -95,20 +153,23 @@ const startSamplePlayer = (player: Tone.Player, clip: Clip, isDisposed: () => bo
   });
 };
 
-const schedulePattern = (clip: Clip, tempo: number): PatternDisposer => {
+const schedulePattern = (clip: Clip, tempo: number, autoMix: boolean): PatternDisposer => {
   const { master, kick, snare, hat, bass, keys, pad, pluck, noise } = getAudioGraph();
 
   if (clip.kind === "sample" && clip.sampleUrl) {
-    const player = new Tone.Player({ url: clip.sampleUrl, loop: !clip.oneShot }).connect(master);
+    const gain = new Tone.Gain(1).connect(master);
+    const player = new Tone.Player({ url: clip.sampleUrl, loop: !clip.oneShot }).connect(gain);
+    const voice = { player, gain };
     let disposed = false;
     applySampleTiming(player, clip, tempo);
-    players.set(clip.id, player);
-    startSamplePlayer(player, clip, () => disposed);
+    sampleVoices.set(clip.id, voice);
+    startSamplePlayer(voice, clip, autoMix, () => disposed);
     return () => {
       disposed = true;
       player.stop();
       player.dispose();
-      players.delete(clip.id);
+      gain.dispose();
+      sampleVoices.delete(clip.id);
     };
   }
 
@@ -187,7 +248,7 @@ export const setTempo = (tempo: number) => {
   Tone.Transport.bpm.rampTo(tempo, 0.1);
 };
 
-export const syncAudioSnapshot = (snapshot: MachineSnapshot, clips: Clip[], tempo: number) => {
+export const syncAudioSnapshot = (snapshot: MachineSnapshot, clips: Clip[], tempo: number, autoMix: boolean) => {
   const desired = new Set<string>();
 
   for (const role of ROLES) {
@@ -198,11 +259,14 @@ export const syncAudioSnapshot = (snapshot: MachineSnapshot, clips: Clip[], temp
     if (!clip || clip.kind === "silence") continue;
 
     desired.add(clip.id);
-    const activePlayer = players.get(clip.id);
-    if (activePlayer) applySampleTiming(activePlayer, clip, tempo);
+    const activeVoice = sampleVoices.get(clip.id);
+    if (activeVoice) {
+      applySampleTiming(activeVoice.player, clip, tempo);
+      applySampleMix(activeVoice, clip, autoMix);
+    }
 
     if (!activeParts.has(clip.id)) {
-      activeParts.set(clip.id, schedulePattern(clip, tempo));
+      activeParts.set(clip.id, schedulePattern(clip, tempo, autoMix));
     }
   }
 

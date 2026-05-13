@@ -38,6 +38,7 @@ export type MachineSettings = {
   tempo: number;
   homeKey: string;
   keyLock: boolean;
+  autoMix: boolean;
   density: number;
   silence: number;
   weirdness: number;
