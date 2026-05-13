@@ -10,7 +10,7 @@ Run the app and open `/philosophy.html`, or use the `Field Guide` link in the Ja
 
 JamPad is a compact generative trip-hop instrument, not a miniature DAW.
 
-It should feel beginner-friendly on the surface, disproportionately powerful underneath, and opinionated enough to make musical choices without burying the user in configuration.
+It should feel beginner-friendly on the surface, disproportionately powerful underneath, and opinionated enough to make musical choices without burying the user in configuration. When tradeoffs happen, lightly prioritize playable hardware instrument over composition partner or sample lab. The feeling should sit somewhere between playing an instrument and playing a slightly cryptic game that does not quite want to tell you all of its rules.
 
 ## Current Tech Trees
 
@@ -23,6 +23,8 @@ It should feel beginner-friendly on the surface, disproportionately powerful und
 If a feature does not help the machine make, shape, preserve, or interrupt generative trip-hop performances, it waits.
 
 When proposing future work, the Field Guide should behave like a catalogue. Ideas should be browseable as bundles: automation and macros, beginner compression, sample organization, style directions, tutorial modes, and architecture paths. The user should be able to pick a handful and turn them into a long-term dev plan.
+
+The machine should mostly preserve a vibe, with slightly unstable interruptions. Surprise is welcome when it feels like a musical stinger, fill, rupture, or phrase mutation, not when it constantly erases the user's sense of place.
 
 ## Current Build Note
 
@@ -49,3 +51,11 @@ Prefer tiny rules that generate readable emergence: stable forms, oscillators, g
 ## Beginner Power Rule
 
 Every automation or macro should reduce beginner effort while preserving expert leverage. Hide busy machinery behind musical controls, but keep the system inspectable when the user wants to understand or customize it.
+
+Fundamental controls and hyper-useful macros belong on the surface. Literal advanced controls can live in unobtrusive menus, and the expressive macro layer should be able to interact with the deeper literal layer.
+
+Discovery stays in the foreground. Tutorials should be easy to find and musically useful, but JamPad should first invite play, listening, experimentation, and a little rule-hunting.
+
+## Cryptic Game Rule
+
+JamPad can be mysterious, but it should never be hostile. The user should sense hidden rules, rewards, and emergent behaviors, while the surface stays playable enough that not knowing the full system remains pleasurable.
