@@ -137,7 +137,7 @@ h2 {
 
 .transport {
   display: grid;
-  grid-template-columns: repeat(3, 72px);
+  grid-template-columns: repeat(4, 72px);
   gap: 8px;
 }
 
@@ -554,6 +554,183 @@ select {
   accent-color: #f2c744;
 }
 
+.crateWorkshop {
+  margin-top: 10px;
+  border: 1px solid #3c3c3c;
+  border-radius: 7px;
+  padding: 12px;
+  background:
+    linear-gradient(180deg, rgba(32, 32, 32, 0.98), rgba(15, 15, 15, 0.98)),
+    repeating-linear-gradient(90deg, rgba(242, 199, 68, 0.04) 0 1px, transparent 1px 8px);
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.06),
+    0 2px 0 #050505;
+}
+
+.workshopHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+.workshopHeader p,
+.workshopHeader span,
+.candidateCard span,
+.candidateCard small {
+  color: #8f8f8f;
+  font-size: 0.64rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.workshopHeader h2 {
+  margin: 4px 0 0;
+}
+
+.workshopControls {
+  display: grid;
+  grid-template-columns: minmax(150px, 190px) minmax(0, 1fr);
+  gap: 8px;
+}
+
+.importButton,
+.radioSearch,
+.miniCommand {
+  border: 1px solid #4a4a4a;
+  border-radius: 6px;
+  color: #f2f0ea;
+  background: linear-gradient(180deg, #303030, #181818);
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.08),
+    0 2px 0 #050505;
+}
+
+.importButton {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  font-size: 0.7rem;
+  font-weight: 950;
+  text-transform: uppercase;
+  overflow: hidden;
+}
+
+.importButton input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.radioSearch {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 8px;
+}
+
+.radioSearch svg {
+  color: #f2c744;
+}
+
+.radioSearch input {
+  min-width: 0;
+  border: 0;
+  color: #f2f0ea;
+  background: transparent;
+  outline: 0;
+  font-size: 0.78rem;
+  font-weight: 760;
+}
+
+.miniCommand {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 10px;
+  color: #f2c744;
+  font-size: 0.64rem;
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.miniCommand:disabled {
+  cursor: wait;
+  opacity: 0.55;
+}
+
+.candidateDeck {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.emptyDeck {
+  grid-column: 1 / -1;
+  color: #aaa49a;
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.workshopNotice {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(242, 199, 68, 0.26);
+  border-radius: 5px;
+  padding: 8px 10px;
+  color: #d8c77b;
+  background: rgba(242, 199, 68, 0.06);
+  font-size: 0.72rem;
+  font-weight: 850;
+  line-height: 1.3;
+  text-transform: uppercase;
+}
+
+.candidateCard {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--clip-color, #f2c744) 45%, #333);
+  border-top: 4px solid var(--clip-color, #f2c744);
+  border-radius: 6px;
+  padding: 9px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.candidateCard h3 {
+  margin: 4px 0;
+  color: #f2f0ea;
+  font-size: 0.86rem;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.candidateCard p {
+  color: #b9b5aa;
+  font-size: 0.72rem;
+  line-height: 1.25;
+}
+
+.candidateCard audio {
+  width: 100%;
+  height: 32px;
+}
+
+.candidateActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
 @media (max-width: 980px) {
   .instrumentShell {
     width: min(100% - 14px, 760px);
@@ -568,7 +745,7 @@ select {
   }
 
   .transport {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .machineStatus {
@@ -581,6 +758,11 @@ select {
 
   .lanes {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .workshopControls,
+  .candidateDeck {
+    grid-template-columns: 1fr;
   }
 
   .panel {
@@ -607,5 +789,9 @@ select {
 
   .transportButton {
     min-height: 52px;
+  }
+
+  .transport {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

@@ -47,6 +47,38 @@ export type Clip = {
   color: string;
   locked?: boolean;
   sampleUrl?: string;
+  source?: SourceLedger;
+};
+
+export type SourceLedger = {
+  source: "manual" | "internet-archive";
+  title: string;
+  creator?: string;
+  originalUrl?: string;
+  licenseUrl?: string;
+  retrievedAt: string;
+  approved: boolean;
+  notes: string;
+};
+
+export type ImportCandidate = {
+  id: string;
+  name: string;
+  role: Role;
+  bpm?: number;
+  musicalKey?: string;
+  keyConfidence?: "trusted" | "uncertain";
+  duration: number;
+  weirdness: number;
+  density: DensityBand;
+  ecology: ClipEcology[];
+  moods: string[];
+  probability: number;
+  color: string;
+  sampleUrl: string;
+  oneShot: boolean;
+  source: SourceLedger;
+  analysisNotes: string;
 };
 
 export type MachineSettings = {

@@ -48,7 +48,7 @@ The `Crate Workshop` now includes a 50-sample Loopcloud export import path. Expo
 
 The default crate should be curated, not maximal. Samples that feel too harsh, too novelty-coded, too high-energy, too specific, or too far outside the smoky trip-hop center should be removed from the active starter list even if the files remain available for later recovery.
 
-`Play the Internet` is viable as a speculative Crate Workshop direction if it stays source-aware, license-aware, and user-approved. Public sources such as Internet Archive expose searchable metadata and item file lists, which means JamPad could tune into public-domain or Creative Commons audio, preview fragments, analyze them, and turn approved material into local crate clips. The user should feel like they are loosely playing a strange radio, not like the app is silently scraping unknown copyrighted material.
+`Play the Internet` is viable and now has a first implementation inside the Crate Workshop. Manual audio files can be staged, analyzed, auditioned, and accepted into the live crate. Internet Archive harvest can tune public audio metadata, preview candidate files, attach source notes, and turn approved offerings into crate clips. The user should feel like they are loosely playing a strange radio, not like the app is silently scraping unknown copyrighted material.
 
 ## Workflow Rule
 

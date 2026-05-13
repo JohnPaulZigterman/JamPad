@@ -6,13 +6,17 @@ import {
   ChevronDown,
   ChevronUp,
   CircleStop,
+  Download,
   Gamepad2,
   KeyRound,
   Lock,
+  Radio,
   SlidersHorizontal,
   Play,
   RefreshCcw,
+  Search,
   Unlock,
+  Upload,
   Volume2,
   VolumeX,
 } from "lucide-react";
@@ -26,7 +30,8 @@ import {
 } from "./audioEngine";
 import { chooseAutoMode, createInitialSnapshot, decayMemory, generateNextSnapshot, rememberSnapshot } from "./machine";
 import { formatKey } from "./musicTheory";
-import { Clip, DirectorMacro, MachineMode, MachineSettings, MachineSnapshot, Role, RoleControl } from "./types";
+import { candidateToClip, createManualCandidates, searchInternetArchive } from "./importWorkshop";
+import { Clip, DirectorMacro, ImportCandidate, MachineMode, MachineSettings, MachineSnapshot, Role, RoleControl } from "./types";
 
 const modeCopy: Record<MachineMode, string> = {
   sparse: "Sparse",
@@ -263,13 +268,103 @@ function RoleLane({
   );
 }
 
+function CrateWorkshop({
+  candidates,
+  query,
+  isSearching,
+  notice,
+  onQueryChange,
+  onManualFiles,
+  onInternetSearch,
+  onApprove,
+  onReject,
+}: {
+  candidates: ImportCandidate[];
+  query: string;
+  isSearching: boolean;
+  notice: string;
+  onQueryChange: (query: string) => void;
+  onManualFiles: (files: File[]) => void;
+  onInternetSearch: () => void;
+  onApprove: (candidate: ImportCandidate) => void;
+  onReject: (id: string) => void;
+}) {
+  return (
+    <section className="crateWorkshop" aria-label="Crate workshop">
+      <div className="workshopHeader">
+        <div>
+          <p>Crate Workshop</p>
+          <h2>Play The Internet</h2>
+        </div>
+        <span>{candidates.length} offerings</span>
+      </div>
+      <div className="workshopControls">
+        <label className="importButton">
+          <Upload size={16} />
+          <span>Manual Import</span>
+          <input
+            type="file"
+            accept="audio/*,.wav,.mp3,.flac,.ogg,.m4a,.aif,.aiff"
+            multiple
+            onChange={(event) => {
+              onManualFiles(Array.from(event.currentTarget.files ?? []));
+              event.currentTarget.value = "";
+            }}
+          />
+        </label>
+        <div className="radioSearch">
+          <Radio size={16} />
+          <input
+            value={query}
+            onChange={(event) => onQueryChange(event.currentTarget.value)}
+            placeholder="lofi jazz drums public domain"
+            aria-label="Internet Archive search"
+          />
+          <button className="miniCommand" onClick={onInternetSearch} disabled={isSearching}>
+            {isSearching ? <Download size={16} /> : <Search size={16} />}
+            <span>{isSearching ? "Tuning" : "Harvest"}</span>
+          </button>
+        </div>
+      </div>
+      <div className="candidateDeck">
+        {notice && <p className="workshopNotice">{notice}</p>}
+        {candidates.length === 0 ? (
+          <p className="emptyDeck">Drop files or harvest public audio. The machine will offer guesses; you decide what enters the crate.</p>
+        ) : candidates.map((candidate) => (
+          <article className="candidateCard" key={candidate.id} style={{ "--clip-color": candidate.color } as CSSProperties}>
+            <div>
+              <span>{candidate.source.source === "manual" ? "Manual" : "Internet Archive"}</span>
+              <h3>{candidate.name}</h3>
+              <p>{candidate.analysisNotes}</p>
+              <small>
+                {candidate.source.creator ? `${candidate.source.creator} / ` : ""}
+                {candidate.source.licenseUrl ? "license metadata" : "review rights"}
+              </small>
+            </div>
+            <audio controls src={candidate.sampleUrl} />
+            <div className="candidateActions">
+              <button className="miniCommand" onClick={() => onApprove(candidate)}>Accept</button>
+              <button className="miniCommand" onClick={() => onReject(candidate.id)}>Banish</button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 export function App() {
-  const [clips] = useState(DEFAULT_CLIPS);
+  const [clips, setClips] = useState(DEFAULT_CLIPS);
   const [settings, setSettings] = useState<MachineSettings>(defaultSettings);
   const [snapshot, setSnapshot] = useState(createInitialSnapshot);
   const [isPlaying, setIsPlaying] = useState(false);
   const [bar, setBar] = useState(0);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showWorkshop, setShowWorkshop] = useState(false);
+  const [importCandidates, setImportCandidates] = useState<ImportCandidate[]>([]);
+  const [internetQuery, setInternetQuery] = useState("lofi jazz drums public domain");
+  const [isSearchingInternet, setIsSearchingInternet] = useState(false);
+  const [workshopNotice, setWorkshopNotice] = useState("Manual import is local. Internet harvest keeps source notes attached.");
   const [expandedRoles, setExpandedRoles] = useState<Set<Role>>(new Set());
   const tickDisposer = useRef<null | (() => void)>(null);
   const settingsRef = useRef(settings);
@@ -365,6 +460,48 @@ export function App() {
     });
   };
 
+  const addCandidates = (candidates: ImportCandidate[]) => {
+    setImportCandidates((current) => {
+      const known = new Set(current.map((candidate) => candidate.id));
+      return [...current, ...candidates.filter((candidate) => !known.has(candidate.id))];
+    });
+  };
+
+  const importManualFiles = async (files: File[]) => {
+    const candidates = await createManualCandidates(files);
+    addCandidates(candidates);
+    setWorkshopNotice(candidates.length > 0 ? `Staged ${candidates.length} local offering${candidates.length === 1 ? "" : "s"}.` : "No usable audio files found.");
+    setShowWorkshop(true);
+  };
+
+  const harvestInternet = async () => {
+    setIsSearchingInternet(true);
+    setWorkshopNotice("Tuning the public archive. Some offerings may arrive by metadata only.");
+    try {
+      const candidates = await searchInternetArchive(internetQuery);
+      addCandidates(candidates);
+      setWorkshopNotice(candidates.length > 0 ? `Harvested ${candidates.length} public offering${candidates.length === 1 ? "" : "s"} for review.` : "No usable public audio returned. Try a looser phrase.");
+      setShowWorkshop(true);
+    } catch {
+      setWorkshopNotice("The internet radio missed the station. Try again or change the phrase.");
+    } finally {
+      setIsSearchingInternet(false);
+    }
+  };
+
+  const approveCandidate = (candidate: ImportCandidate) => {
+    const clip = candidateToClip({
+      ...candidate,
+      source: { ...candidate.source, approved: true },
+    });
+    setClips((current) => current.some((item) => item.id === clip.id) ? current : [...current, clip]);
+    setImportCandidates((current) => current.filter((item) => item.id !== candidate.id));
+  };
+
+  const rejectCandidate = (id: string) => {
+    setImportCandidates((current) => current.filter((candidate) => candidate.id !== id));
+  };
+
   const sampleClipCount = clips.filter((clip) => clip.kind === "sample").length;
   const activeSampleCount = ROLES.filter((role) => {
     const active = clips.find((clip) => clip.id === snapshot[role].activeClipId);
@@ -401,6 +538,10 @@ export function App() {
           <button className={showAdvanced ? "transportButton is-active" : "transportButton"} onClick={() => setShowAdvanced((current) => !current)} aria-label="Toggle controls">
             <SlidersHorizontal size={20} />
             <span>Ctrl</span>
+          </button>
+          <button className={showWorkshop ? "transportButton is-active" : "transportButton"} onClick={() => setShowWorkshop((current) => !current)} aria-label="Toggle crate workshop">
+            <Radio size={20} />
+            <span>Crate</span>
           </button>
         </div>
       </header>
@@ -524,6 +665,20 @@ export function App() {
           </aside>
         )}
       </section>
+
+      {showWorkshop && (
+        <CrateWorkshop
+          candidates={importCandidates}
+          query={internetQuery}
+          isSearching={isSearchingInternet}
+          notice={workshopNotice}
+          onQueryChange={setInternetQuery}
+          onManualFiles={importManualFiles}
+          onInternetSearch={harvestInternet}
+          onApprove={approveCandidate}
+          onReject={rejectCandidate}
+        />
+      )}
     </main>
   );
 }
