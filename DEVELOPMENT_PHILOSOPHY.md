@@ -46,6 +46,8 @@ Each lane now has tiny `RND` and `STK` behavior controls. Per-channel randomness
 
 The `Crate Workshop` now includes a 50-sample Loopcloud export import path. Exported/pitch-locked samples may have unreliable filename keys, so their keys are treated as uncertain hints instead of hard harmonic truth.
 
+The default crate should be curated, not maximal. Samples that feel too harsh, too novelty-coded, too high-energy, too specific, or too far outside the smoky trip-hop center should be removed from the active starter list even if the files remain available for later recovery.
+
 `Play the Internet` is viable as a speculative Crate Workshop direction if it stays source-aware, license-aware, and user-approved. Public sources such as Internet Archive expose searchable metadata and item file lists, which means JamPad could tune into public-domain or Creative Commons audio, preview fragments, analyze them, and turn approved material into local crate clips. The user should feel like they are loosely playing a strange radio, not like the app is silently scraping unknown copyrighted material.
 
 ## Workflow Rule
