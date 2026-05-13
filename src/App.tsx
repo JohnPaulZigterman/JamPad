@@ -55,7 +55,7 @@ const clipMeta = (clip?: Clip) => {
   if (!clip || clip.kind === "silence") return "rest";
   const parts: string[] = [clip.kind];
   if (clip.oneShot) parts.push("one-shot");
-  if (clip.musicalKey) parts.push(formatKey(clip.musicalKey));
+  if (clip.musicalKey) parts.push(`${formatKey(clip.musicalKey)}${clip.keyConfidence === "uncertain" ? "?" : ""}`);
   if (clip.bpm) parts.push(`${clip.bpm} BPM`);
   return parts.join(" / ");
 };

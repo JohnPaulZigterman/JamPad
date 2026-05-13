@@ -22,6 +22,7 @@ export type Clip = {
   bars: number;
   bpm?: number;
   musicalKey?: string;
+  keyConfidence?: "trusted" | "uncertain";
   oneShot?: boolean;
   probability: number;
   weirdness: number;

@@ -28,6 +28,8 @@ The `Taste Engine` now treats key and source tempo as musical taste signals. Jam
 
 The `Taste Engine` also owns automatic mix hygiene. Samples should be gain-staged by role and normalized conservatively before the user ever reaches for manual volume controls.
 
+The `Crate Workshop` now includes a 50-sample Loopcloud export import path. Exported/pitch-locked samples may have unreliable filename keys, so their keys are treated as uncertain hints instead of hard harmonic truth.
+
 ## Workflow Rule
 
 Every major direction should be placed on the user workflow map: open, play, steer, intervene, commit, or build. If a feature creates a new path, the Field Guide should show that path before the app grows around it.

@@ -112,7 +112,7 @@ export const generateNextSnapshot = (
       const memoryPenalty = memory[clip.id] ? 0.28 : 1;
       const modeBoost = profile.stableRoles.includes(role) ? 1.18 : 1;
       const crateBoost = clip.kind === "sample" ? 1.75 : 0.62;
-      const keyFit = getKeyMatchWeight(clip.musicalKey, settings.homeKey, settings.keyLock);
+      const keyFit = getKeyMatchWeight(clip.musicalKey, settings.homeKey, settings.keyLock, clip.keyConfidence);
       const tempoFit = clip.kind === "sample" ? getTempoMatchWeight(clip.bpm, settings.tempo) : 1;
 
       return {

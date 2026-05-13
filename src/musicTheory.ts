@@ -48,21 +48,29 @@ const circularDistance = (a: number, b: number) => {
 
 const relativeRoot = (key: ParsedKey) => (key.mode === "minor" ? (key.root + 3) % 12 : (key.root + 9) % 12);
 
-export const getKeyMatchWeight = (clipKey: string | undefined, homeKey: string, strict: boolean) => {
+export const getKeyMatchWeight = (
+  clipKey: string | undefined,
+  homeKey: string,
+  strict: boolean,
+  confidence: "trusted" | "uncertain" = "trusted",
+) => {
   const clip = parseKey(clipKey);
   const home = parseKey(homeKey);
 
   if (!clip || !home) return 1;
-  if (clip.root === home.root && clip.mode === home.mode) return 1.8;
-  if (clip.root === relativeRoot(home) && clip.mode !== home.mode) return 1.55;
-  if (clip.root === home.root) return 1.28;
+  let weight = 1;
+  if (clip.root === home.root && clip.mode === home.mode) weight = 1.8;
+  else if (clip.root === relativeRoot(home) && clip.mode !== home.mode) weight = 1.55;
+  else if (clip.root === home.root) weight = 1.28;
+  else {
+    const distance = circularDistance(clip.root, home.root);
+    if (distance === 5 || distance === 7) weight = 1.14;
+    else if (distance === 2 || distance === 10) weight = strict ? 0.46 : 0.76;
+    else if (distance === 3 || distance === 4 || distance === 8 || distance === 9) weight = strict ? 0.34 : 0.64;
+    else weight = strict ? 0.22 : 0.5;
+  }
 
-  const distance = circularDistance(clip.root, home.root);
-  if (distance === 5 || distance === 7) return 1.14;
-  if (distance === 2 || distance === 10) return strict ? 0.46 : 0.76;
-  if (distance === 3 || distance === 4 || distance === 8 || distance === 9) return strict ? 0.34 : 0.64;
-
-  return strict ? 0.22 : 0.5;
+  return confidence === "uncertain" ? 1 + (weight - 1) * 0.45 : weight;
 };
 
 export const getClosestTempoRatio = (sourceBpm: number | undefined, targetBpm: number) => {
@@ -89,4 +97,3 @@ export const formatKey = (key?: string) => {
   if (!parsed) return "Free";
   return `${INDEX_NOTE[parsed.root]}${parsed.mode === "minor" ? "m" : ""}`;
 };
-
