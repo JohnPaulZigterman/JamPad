@@ -44,6 +44,8 @@ The machine can rest, but it should not go fully dead while playing. If any unmu
 
 Each lane now has tiny `RND` and `STK` behavior controls. Per-channel randomness should make a lane more exploratory; per-channel stickiness should make clips and rests loop longer. These are faceplate controls because they make the box feel playable without exposing a rules editor.
 
+`Signal Steps` is a new project direction for giving each instrument lane a compact drum-machine-like signal row. Users should be able to enter simple numbers or symbols per step that influence which sample family plays and how long it loops: rest, hold, choose, stinger, vamp, dropout, or loop length. The surface should feel like programming a slightly cryptic hardware sequencer, not editing a DAW piano roll.
+
 The `Crate Workshop` now includes a 50-sample Loopcloud export import path. Exported/pitch-locked samples may have unreliable filename keys, so their keys are treated as uncertain hints instead of hard harmonic truth.
 
 The default crate should be curated, not maximal. Samples that feel too harsh, too novelty-coded, too high-energy, too specific, or too far outside the smoky trip-hop center should be removed from the active starter list even if the files remain available for later recovery.
