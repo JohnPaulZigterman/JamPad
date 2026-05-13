@@ -1,4 +1,4 @@
-import { Clip, MachineSettings, MachineSnapshot, Role } from "./types";
+import { Clip, ClipEcology, DirectorMacro, MachineSettings, MachineSnapshot, Role } from "./types";
 import { ROLES } from "./clips";
 import { getKeyMatchWeight, getTempoMatchWeight } from "./musicTheory";
 
@@ -28,6 +28,57 @@ const modeProfile = {
     silence: 0.42,
     weirdness: 0.86,
     stableRoles: ["noise", "fills", "vocal"] as Role[],
+  },
+};
+
+const directorProfile: Record<DirectorMacro, {
+  density: number;
+  silence: number;
+  weirdness: number;
+  stability: number;
+  ecology: Partial<Record<ClipEcology, number>>;
+}> = {
+  preserve: {
+    density: -0.08,
+    silence: 0.06,
+    weirdness: -0.16,
+    stability: 0.22,
+    ecology: { anchor: 1.45, vamp: 1.35, ghost: 1.12, stinger: 0.45, rupture: 0.34 },
+  },
+  nudge: {
+    density: 0.02,
+    silence: 0,
+    weirdness: 0,
+    stability: 0.08,
+    ecology: { riff: 1.16, fill: 1.08, swell: 1.08 },
+  },
+  bloom: {
+    density: 0.14,
+    silence: -0.12,
+    weirdness: 0.08,
+    stability: 0.04,
+    ecology: { swell: 1.45, riff: 1.22, bridge: 1.16, dropout: 0.52 },
+  },
+  stinger: {
+    density: 0.04,
+    silence: -0.04,
+    weirdness: 0.18,
+    stability: -0.04,
+    ecology: { stinger: 1.85, fill: 1.32, rupture: 1.16, anchor: 0.72 },
+  },
+  break: {
+    density: 0.18,
+    silence: 0.06,
+    weirdness: 0.32,
+    stability: -0.18,
+    ecology: { rupture: 1.72, stinger: 1.46, dropout: 1.28, ghost: 1.16, anchor: 0.58 },
+  },
+  recover: {
+    density: -0.1,
+    silence: 0.18,
+    weirdness: -0.12,
+    stability: 0.16,
+    ecology: { dropout: 1.52, bridge: 1.42, anchor: 1.25, vamp: 1.14, rupture: 0.46 },
   },
 };
 
@@ -62,6 +113,17 @@ const weightedPick = (items: Array<{ clip: Clip; weight: number }>): Clip => {
   return items[items.length - 1].clip;
 };
 
+const ecologyWeight = (clip: Clip, director: DirectorMacro, activeClipCount: number) => {
+  const profile = directorProfile[director];
+  const base = clip.ecology.reduce((weight, ecology) => weight * (profile.ecology[ecology] ?? 1), 1);
+  const overcrowdedDropout = activeClipCount >= 5 && clip.ecology.some((ecology) => ecology === "dropout" || ecology === "bridge")
+    ? 1.32
+    : 1;
+  const quietStinger = activeClipCount <= 2 && clip.ecology.includes("stinger") ? 0.72 : 1;
+
+  return clamp(base * overcrowdedDropout * quietStinger, 0.2, 2.4);
+};
+
 export const generateNextSnapshot = (
   clips: Clip[],
   current: MachineSnapshot,
@@ -71,9 +133,15 @@ export const generateNextSnapshot = (
 ): MachineSnapshot => {
   const resolvedMode = settings.mode === "auto" ? chooseAutoMode(bar) : settings.mode;
   const profile = modeProfile[resolvedMode];
-  const targetDensity = clamp((settings.density + profile.density) / 2);
-  const silenceBias = clamp((settings.silence + profile.silence) / 2);
-  const weirdnessBias = clamp((settings.weirdness + profile.weirdness) / 2);
+  const director = directorProfile[settings.director];
+  const targetDensity = clamp((settings.density + profile.density) / 2 + director.density);
+  const silenceBias = clamp((settings.silence + profile.silence) / 2 + director.silence);
+  const weirdnessBias = clamp((settings.weirdness + profile.weirdness) / 2 + director.weirdness);
+  const stabilityBias = clamp(settings.stability + director.stability);
+  const activeClipCount = ROLES.filter((role) => {
+    const active = clips.find((clip) => clip.id === current[role].activeClipId);
+    return active && active.kind !== "silence" && !current[role].muted;
+  }).length;
 
   const next = { ...current } as MachineSnapshot;
 
@@ -84,10 +152,10 @@ export const generateNextSnapshot = (
     const active = clips.find((clip) => clip.id === roleState.activeClipId);
     const isStableRole = profile.stableRoles.includes(role);
     const keepChance = active?.kind !== "silence"
-      ? clamp(0.28 + settings.stability * (isStableRole ? 0.82 : 0.62) - weirdnessBias * 0.14)
+      ? clamp(0.28 + stabilityBias * (isStableRole ? 0.82 : 0.62) - weirdnessBias * 0.14)
       : 0;
     const silenceHoldChance = active?.kind === "silence"
-      ? clamp(0.38 + settings.stability * 0.42 + silenceBias * 0.25 - weirdnessBias * 0.12)
+      ? clamp(0.38 + stabilityBias * 0.42 + silenceBias * 0.25 - weirdnessBias * 0.12)
       : 0;
 
     if (active?.kind === "silence" && Math.random() < silenceHoldChance) {
@@ -123,12 +191,13 @@ export const generateNextSnapshot = (
       const crateBoost = clip.kind === "sample" ? 1.75 : 0.62;
       const keyFit = getKeyMatchWeight(clip.musicalKey, settings.homeKey, settings.keyLock, clip.keyConfidence);
       const tempoFit = clip.kind === "sample" ? getTempoMatchWeight(clip.bpm, settings.tempo) : 1;
+      const ecologyFit = ecologyWeight(clip, settings.director, activeClipCount);
 
       return {
         clip,
         weight: Math.max(
           0.02,
-          clip.probability * densityFit * weirdFit * memoryPenalty * modeBoost * crateBoost * keyFit * tempoFit,
+          clip.probability * densityFit * weirdFit * memoryPenalty * modeBoost * crateBoost * keyFit * tempoFit * ecologyFit,
         ),
       };
     });

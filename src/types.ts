@@ -10,9 +10,23 @@ export type Role =
 
 export type MachineMode = "sparse" | "groove" | "collapse" | "auto";
 
+export type DirectorMacro = "preserve" | "nudge" | "bloom" | "stinger" | "break" | "recover";
+
 export type DensityBand = "low" | "medium" | "high";
 
 export type ClipKind = "pattern" | "sample" | "silence";
+
+export type ClipEcology =
+  | "anchor"
+  | "vamp"
+  | "riff"
+  | "fill"
+  | "stinger"
+  | "dropout"
+  | "bridge"
+  | "swell"
+  | "ghost"
+  | "rupture";
 
 export type Clip = {
   id: string;
@@ -27,6 +41,7 @@ export type Clip = {
   probability: number;
   weirdness: number;
   density: DensityBand;
+  ecology: ClipEcology[];
   moods: string[];
   returnToSilenceChance: number;
   color: string;
@@ -36,6 +51,7 @@ export type Clip = {
 
 export type MachineSettings = {
   mode: MachineMode;
+  director: DirectorMacro;
   tempo: number;
   homeKey: string;
   keyLock: boolean;

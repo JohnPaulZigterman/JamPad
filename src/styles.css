@@ -143,6 +143,7 @@ h2 {
 
 .transportButton,
 .modeButton,
+.directorButton,
 .iconButton {
   display: inline-flex;
   align-items: center;
@@ -172,6 +173,7 @@ h2 {
 
 .transportButton:hover,
 .modeButton:hover,
+.directorButton:hover,
 .iconButton:hover {
   transform: translateY(-1px);
   border-color: #777;
@@ -185,6 +187,7 @@ h2 {
 
 .transportButton.is-active,
 .modeButton.is-active,
+.directorButton.is-active,
 .iconButton.is-active {
   border-color: #f2c744;
   color: #f2c744;
@@ -227,6 +230,57 @@ h2 {
   color: #f2f0ea;
   font-size: 1rem;
   line-height: 1;
+}
+
+.statusTileWide {
+  grid-column: span 2;
+}
+
+.statusTileWide strong {
+  color: #d9d2c0;
+  font-size: 0.82rem;
+  line-height: 1.18;
+  text-transform: uppercase;
+}
+
+.directorStrip {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.directorButton {
+  min-height: 58px;
+  display: grid;
+  gap: 3px;
+  padding: 8px;
+  text-align: left;
+}
+
+.directorButton span,
+.directorButton small {
+  display: block;
+}
+
+.directorButton span {
+  color: #f2f0ea;
+  font-size: 0.72rem;
+  font-weight: 950;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.directorButton small {
+  color: #8f8f8f;
+  font-size: 0.58rem;
+  font-weight: 850;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.directorButton.is-active small {
+  color: #d8c77b;
 }
 
 .modeStrip {
@@ -493,6 +547,10 @@ select {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .directorStrip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .lanes {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -505,9 +563,14 @@ select {
 @media (max-width: 620px) {
   .brandBlock,
   .machineStatus,
+  .directorStrip,
   .modeStrip,
   .lanes {
     grid-template-columns: 1fr;
+  }
+
+  .statusTileWide {
+    grid-column: auto;
   }
 
   .crateBadge {

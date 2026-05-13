@@ -38,6 +38,8 @@ Tempo snapping is now a playback promise, not just a selection hint. Looped samp
 
 The `Taste Engine` also owns automatic mix hygiene. Samples should be gain-staged by role and normalized conservatively before the user ever reaches for manual volume controls.
 
+The current hybrid plan is `Faceplate Instrument + Hidden Rules Engine`: build the playable hardware surface first, while quietly wiring musical ecology into the probability machine. The first implementation adds Director macros, hidden-rule tells, and ecology tags that steer anchors, vamps, stingers, ruptures, dropouts, and bridges.
+
 The `Crate Workshop` now includes a 50-sample Loopcloud export import path. Exported/pitch-locked samples may have unreliable filename keys, so their keys are treated as uncertain hints instead of hard harmonic truth.
 
 ## Workflow Rule

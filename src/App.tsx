@@ -6,6 +6,7 @@ import {
   ChevronDown,
   ChevronUp,
   CircleStop,
+  Gamepad2,
   KeyRound,
   Lock,
   SlidersHorizontal,
@@ -25,7 +26,7 @@ import {
 } from "./audioEngine";
 import { chooseAutoMode, createInitialSnapshot, decayMemory, generateNextSnapshot, rememberSnapshot } from "./machine";
 import { formatKey } from "./musicTheory";
-import { Clip, MachineMode, MachineSettings, MachineSnapshot, Role } from "./types";
+import { Clip, DirectorMacro, MachineMode, MachineSettings, MachineSnapshot, Role } from "./types";
 
 const modeCopy: Record<MachineMode, string> = {
   sparse: "Sparse",
@@ -34,8 +35,27 @@ const modeCopy: Record<MachineMode, string> = {
   auto: "Auto",
 };
 
+const directorCopy: Record<DirectorMacro, string> = {
+  preserve: "Preserve",
+  nudge: "Nudge",
+  bloom: "Bloom",
+  stinger: "Stinger",
+  break: "Break",
+  recover: "Recover",
+};
+
+const directorTell: Record<DirectorMacro, string> = {
+  preserve: "rules favor anchors and vamps",
+  nudge: "small changes are allowed",
+  bloom: "swells and riffs can gather",
+  stinger: "interruptions are armed",
+  break: "rupture rules are awake",
+  recover: "dropouts and bridges can clear space",
+};
+
 const defaultSettings: MachineSettings = {
   mode: "auto",
+  director: "preserve",
   tempo: 78,
   homeKey: "Cm",
   keyLock: true,
@@ -58,6 +78,23 @@ const clipMeta = (clip?: Clip) => {
   if (clip.musicalKey) parts.push(`${formatKey(clip.musicalKey)}${clip.keyConfidence === "uncertain" ? "?" : ""}`);
   if (clip.bpm) parts.push(`${clip.bpm} BPM`);
   return parts.join(" / ");
+};
+
+const primaryEcology = (clip?: Clip) => clip?.ecology?.[0] ?? "rest";
+
+const getConfidenceTell = (
+  settings: MachineSettings,
+  resolvedMode: Exclude<MachineMode, "auto">,
+  activeClips: Clip[],
+) => {
+  const activeCount = activeClips.length;
+  if (settings.director === "break") return "hidden rule: overcrowding may rupture";
+  if (settings.director === "stinger") return "hidden rule: a sharp event is armed";
+  if (settings.director === "recover") return "hidden rule: space clears the board";
+  if (activeCount <= 2) return "holding air; waiting for a useful entrance";
+  if (activeCount >= 6) return "crowded field; dropouts gain gravity";
+  if (resolvedMode === "groove") return "groove is stable; vamps get extra weight";
+  return directorTell[settings.director];
 };
 
 function Slider({
@@ -166,7 +203,7 @@ function RoleLane({
       </div>
       <div className="laneFooter">
         <span>{activeClip?.kind === "sample" ? "Crate" : activeClip?.kind === "silence" ? "Resting" : "Synth"}</span>
-        <span>{activeClip?.kind === "sample" ? clipMeta(activeClip).replace("sample / ", "") : `${sampleCount} samples`}</span>
+        <span>{activeClip?.kind === "silence" ? `${sampleCount} samples` : primaryEcology(activeClip)}</span>
       </div>
       {isExpanded && (
         <div className="clips">
@@ -177,7 +214,7 @@ function RoleLane({
               style={{ "--clip-color": clip.color } as CSSProperties}
             >
               <span>{clip.name}</span>
-              <small>{clip.kind === "silence" ? "rest" : `${clipMeta(clip)} / ${clip.density}`}</small>
+              <small>{clip.kind === "silence" ? "rest" : `${clipMeta(clip)} / ${clip.density} / ${clip.ecology.join(", ")}`}</small>
             </div>
           ))}
         </div>
@@ -281,6 +318,10 @@ export function App() {
     const active = clips.find((clip) => clip.id === snapshot[role].activeClipId);
     return active?.kind === "sample";
   }).length;
+  const activeClips = ROLES
+    .map((role) => clips.find((clip) => clip.id === snapshot[role].activeClipId))
+    .filter((clip): clip is Clip => Boolean(clip && clip.kind !== "silence"));
+  const confidenceTell = getConfidenceTell(settings, resolvedMode, activeClips);
 
   return (
     <main className="instrumentShell">
@@ -333,6 +374,25 @@ export function App() {
           <span>Key</span>
           <strong>{formatKey(settings.homeKey)}</strong>
         </div>
+        <div className="statusTile statusTileWide">
+          <Gamepad2 size={18} />
+          <span>Hidden Rule</span>
+          <strong>{confidenceTell}</strong>
+        </div>
+      </section>
+
+      <section className="directorStrip" aria-label="Director macro">
+        {(Object.keys(directorCopy) as DirectorMacro[]).map((director) => (
+          <button
+            className={settings.director === director ? "directorButton is-active" : "directorButton"}
+            key={director}
+            onClick={() => updateSettings({ director })}
+            title={directorTell[director]}
+          >
+            <span>{directorCopy[director]}</span>
+            <small>{directorTell[director]}</small>
+          </button>
+        ))}
       </section>
 
       <section className="modeStrip" aria-label="Machine modes">

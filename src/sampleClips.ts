@@ -1,4 +1,24 @@
-import { Clip, DensityBand, Role } from "./types";
+import { Clip, ClipEcology, DensityBand, Role } from "./types";
+
+const ecologyFor = (role: Role, density: DensityBand, weirdness: number, moods: string[]): ClipEcology[] => {
+  const ecology = new Set<ClipEcology>();
+
+  if (role === "drums" || role === "bass") ecology.add(density === "low" ? "vamp" : "anchor");
+  if (role === "chords") ecology.add(density === "low" ? "vamp" : "riff");
+  if (role === "texture") ecology.add(weirdness > 0.52 ? "swell" : "ghost");
+  if (role === "vocal") ecology.add(weirdness > 0.56 ? "stinger" : "riff");
+  if (role === "percussion") ecology.add(density === "high" ? "fill" : "riff");
+  if (role === "noise") ecology.add(weirdness > 0.72 ? "rupture" : "ghost");
+  if (role === "fills") ecology.add(weirdness > 0.68 ? "stinger" : "fill");
+
+  if (moods.some((mood) => ["anchor", "groove", "bed", "slow", "sparse"].includes(mood))) ecology.add("anchor");
+  if (moods.some((mood) => ["rare", "glitch", "collapse", "siren", "stabs"].includes(mood))) ecology.add("stinger");
+  if (moods.some((mood) => ["fx", "one-shot", "faded"].includes(mood))) ecology.add("dropout");
+  if (moods.some((mood) => ["lift", "pretty", "dreamy", "lavender"].includes(mood))) ecology.add("swell");
+  if (moods.some((mood) => ["lofi", "vinyl", "scratch", "dusty"].includes(mood))) ecology.add("ghost");
+
+  return [...ecology];
+};
 
 const sample = (
   id: string,
@@ -25,6 +45,7 @@ const sample = (
   probability,
   weirdness,
   density,
+  ecology: ecologyFor(role, density, weirdness, moods),
   moods: key ? [...moods, key] : moods,
   returnToSilenceChance: role === "texture" || role === "noise" ? 0.28 : 0.34,
   color,
