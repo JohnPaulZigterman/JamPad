@@ -6,6 +6,7 @@ import {
   ChevronDown,
   ChevronUp,
   CircleStop,
+  KeyRound,
   Lock,
   SlidersHorizontal,
   Play,
@@ -23,6 +24,7 @@ import {
   syncAudioSnapshot,
 } from "./audioEngine";
 import { chooseAutoMode, createInitialSnapshot, decayMemory, generateNextSnapshot, rememberSnapshot } from "./machine";
+import { formatKey } from "./musicTheory";
 import { Clip, MachineMode, MachineSettings, MachineSnapshot, Role } from "./types";
 
 const modeCopy: Record<MachineMode, string> = {
@@ -35,6 +37,8 @@ const modeCopy: Record<MachineMode, string> = {
 const defaultSettings: MachineSettings = {
   mode: "auto",
   tempo: 78,
+  homeKey: "Cm",
+  keyLock: true,
   density: 0.56,
   silence: 0.42,
   weirdness: 0.34,
@@ -44,6 +48,16 @@ const defaultSettings: MachineSettings = {
 const memoryRef: { current: Record<string, number> } = { current: {} };
 
 const formatPercent = (value: number) => `${Math.round(value * 100)}%`;
+const HOME_KEYS = ["Cm", "C", "Dm", "Eb", "Em", "F", "Gm", "G", "Am", "A", "Bb", "B"];
+
+const clipMeta = (clip?: Clip) => {
+  if (!clip || clip.kind === "silence") return "rest";
+  const parts: string[] = [clip.kind];
+  if (clip.oneShot) parts.push("one-shot");
+  if (clip.musicalKey) parts.push(formatKey(clip.musicalKey));
+  if (clip.bpm) parts.push(`${clip.bpm} BPM`);
+  return parts.join(" / ");
+};
 
 function Slider({
   label,
@@ -151,7 +165,7 @@ function RoleLane({
       </div>
       <div className="laneFooter">
         <span>{activeClip?.kind === "sample" ? "Crate" : activeClip?.kind === "silence" ? "Resting" : "Synth"}</span>
-        <span>{sampleCount} samples</span>
+        <span>{activeClip?.kind === "sample" ? clipMeta(activeClip).replace("sample / ", "") : `${sampleCount} samples`}</span>
       </div>
       {isExpanded && (
         <div className="clips">
@@ -162,7 +176,7 @@ function RoleLane({
               style={{ "--clip-color": clip.color } as CSSProperties}
             >
               <span>{clip.name}</span>
-              <small>{clip.kind === "silence" ? "rest" : `${clip.kind} / ${clip.density}`}</small>
+              <small>{clip.kind === "silence" ? "rest" : `${clipMeta(clip)} / ${clip.density}`}</small>
             </div>
           ))}
         </div>
@@ -196,8 +210,8 @@ export function App() {
   }, [settings.tempo]);
 
   useEffect(() => {
-    if (isPlaying) syncAudioSnapshot(snapshot, clips);
-  }, [clips, isPlaying, snapshot]);
+    if (isPlaying) syncAudioSnapshot(snapshot, clips, settings.tempo);
+  }, [clips, isPlaying, settings.tempo, snapshot]);
 
   const updateSettings = (partial: Partial<MachineSettings>) => {
     setSettings((current) => ({ ...current, ...partial }));
@@ -313,6 +327,11 @@ export function App() {
           <span>Crate</span>
           <strong>{activeSampleCount}/{ROLES.length}</strong>
         </div>
+        <div className="statusTile">
+          <KeyRound size={18} />
+          <span>Key</span>
+          <strong>{formatKey(settings.homeKey)}</strong>
+        </div>
       </section>
 
       <section className="modeStrip" aria-label="Machine modes">
@@ -354,6 +373,27 @@ export function App() {
               step={1}
               onChange={(tempo) => updateSettings({ tempo })}
             />
+            <label className="control">
+              <span>
+                Key
+                <strong>{settings.keyLock ? "Match" : "Loose"}</strong>
+              </span>
+              <select value={settings.homeKey} onChange={(event) => updateSettings({ homeKey: event.currentTarget.value })}>
+                {HOME_KEYS.map((key) => (
+                  <option key={key} value={key}>
+                    {formatKey(key)}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="toggleControl">
+              <input
+                type="checkbox"
+                checked={settings.keyLock}
+                onChange={(event) => updateSettings({ keyLock: event.currentTarget.checked })}
+              />
+              <span>Key Lock</span>
+            </label>
             <Slider label="Density" value={settings.density} onChange={(density) => updateSettings({ density })} />
             <Slider label="Silence" value={settings.silence} onChange={(silence) => updateSettings({ silence })} />
             <Slider label="Weird" value={settings.weirdness} onChange={(weirdness) => updateSettings({ weirdness })} />

@@ -1,6 +1,7 @@
 import * as Tone from "tone";
 import { Clip, MachineSnapshot } from "./types";
 import { ROLES } from "./clips";
+import { getClosestTempoRatio } from "./musicTheory";
 
 type PatternDisposer = () => void;
 
@@ -76,14 +77,35 @@ const addEvent = (events: Tone.ToneEvent[], time: Tone.Unit.Time, callback: Tone
   events.push(event);
 };
 
-const schedulePattern = (clip: Clip): PatternDisposer => {
+const applySampleTiming = (player: Tone.Player, clip: Clip, tempo: number) => {
+  player.loop = !clip.oneShot;
+  player.playbackRate = getClosestTempoRatio(clip.bpm, tempo);
+};
+
+const startSamplePlayer = (player: Tone.Player, clip: Clip, isDisposed: () => boolean) => {
+  Tone.loaded().then(() => {
+    if (isDisposed()) return;
+
+    const stretchedDuration = player.buffer.duration / player.playbackRate;
+    const offset = clip.oneShot || stretchedDuration <= 0
+      ? 0
+      : (Tone.Transport.seconds % stretchedDuration) * player.playbackRate;
+
+    player.start(undefined, offset);
+  });
+};
+
+const schedulePattern = (clip: Clip, tempo: number): PatternDisposer => {
   const { master, kick, snare, hat, bass, keys, pad, pluck, noise } = getAudioGraph();
 
   if (clip.kind === "sample" && clip.sampleUrl) {
-    const player = new Tone.Player({ url: clip.sampleUrl, loop: true }).connect(master);
+    const player = new Tone.Player({ url: clip.sampleUrl, loop: !clip.oneShot }).connect(master);
+    let disposed = false;
+    applySampleTiming(player, clip, tempo);
     players.set(clip.id, player);
-    Tone.loaded().then(() => player.start());
+    startSamplePlayer(player, clip, () => disposed);
     return () => {
+      disposed = true;
       player.stop();
       player.dispose();
       players.delete(clip.id);
@@ -165,7 +187,7 @@ export const setTempo = (tempo: number) => {
   Tone.Transport.bpm.rampTo(tempo, 0.1);
 };
 
-export const syncAudioSnapshot = (snapshot: MachineSnapshot, clips: Clip[]) => {
+export const syncAudioSnapshot = (snapshot: MachineSnapshot, clips: Clip[], tempo: number) => {
   const desired = new Set<string>();
 
   for (const role of ROLES) {
@@ -176,8 +198,11 @@ export const syncAudioSnapshot = (snapshot: MachineSnapshot, clips: Clip[]) => {
     if (!clip || clip.kind === "silence") continue;
 
     desired.add(clip.id);
+    const activePlayer = players.get(clip.id);
+    if (activePlayer) applySampleTiming(activePlayer, clip, tempo);
+
     if (!activeParts.has(clip.id)) {
-      activeParts.set(clip.id, schedulePattern(clip));
+      activeParts.set(clip.id, schedulePattern(clip, tempo));
     }
   }
 

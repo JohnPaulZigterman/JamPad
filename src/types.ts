@@ -20,6 +20,9 @@ export type Clip = {
   role: Role;
   kind: ClipKind;
   bars: number;
+  bpm?: number;
+  musicalKey?: string;
+  oneShot?: boolean;
   probability: number;
   weirdness: number;
   density: DensityBand;
@@ -33,6 +36,8 @@ export type Clip = {
 export type MachineSettings = {
   mode: MachineMode;
   tempo: number;
+  homeKey: string;
+  keyLock: boolean;
   density: number;
   silence: number;
   weirdness: number;

@@ -21,3 +21,7 @@ It should feel beginner-friendly on the surface, disproportionately powerful und
 ## Current Rule
 
 If a feature does not help the machine make, shape, preserve, or interrupt generative trip-hop performances, it waits.
+
+## Current Build Note
+
+The `Taste Engine` now treats key and source tempo as musical taste signals. JamPad should prefer compatible samples automatically, stretch loops toward the session tempo, and keep that intelligence behind compact beginner-facing controls.

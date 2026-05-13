@@ -1,5 +1,6 @@
 import { Clip, MachineSettings, MachineSnapshot, Role } from "./types";
 import { ROLES } from "./clips";
+import { getKeyMatchWeight, getTempoMatchWeight } from "./musicTheory";
 
 type Memory = Record<string, number>;
 
@@ -111,12 +112,14 @@ export const generateNextSnapshot = (
       const memoryPenalty = memory[clip.id] ? 0.28 : 1;
       const modeBoost = profile.stableRoles.includes(role) ? 1.18 : 1;
       const crateBoost = clip.kind === "sample" ? 1.75 : 0.62;
+      const keyFit = getKeyMatchWeight(clip.musicalKey, settings.homeKey, settings.keyLock);
+      const tempoFit = clip.kind === "sample" ? getTempoMatchWeight(clip.bpm, settings.tempo) : 1;
 
       return {
         clip,
         weight: Math.max(
           0.02,
-          clip.probability * densityFit * weirdFit * memoryPenalty * modeBoost * crateBoost,
+          clip.probability * densityFit * weirdFit * memoryPenalty * modeBoost * crateBoost * keyFit * tempoFit,
         ),
       };
     });
