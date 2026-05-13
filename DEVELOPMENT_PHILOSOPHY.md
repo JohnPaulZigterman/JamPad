@@ -22,6 +22,8 @@ It should feel beginner-friendly on the surface, disproportionately powerful und
 
 If a feature does not help the machine make, shape, preserve, or interrupt generative trip-hop performances, it waits.
 
+When proposing future work, the Field Guide should behave like a catalogue. Ideas should be browseable as bundles: automation and macros, beginner compression, sample organization, style directions, tutorial modes, and architecture paths. The user should be able to pick a handful and turn them into a long-term dev plan.
+
 ## Current Build Note
 
 The `Taste Engine` now treats key and source tempo as musical taste signals. JamPad should prefer compatible samples automatically, stretch loops toward the session tempo, and keep that intelligence behind compact beginner-facing controls.
@@ -43,3 +45,7 @@ Every major direction should be placed on the user workflow map: open, play, ste
 ## Conway Rule
 
 Prefer tiny rules that generate readable emergence: stable forms, oscillators, gliders, and controlled extinction. A feature inspired by cellular automata should make JamPad feel more alive and teachable, not more abstract or difficult.
+
+## Beginner Power Rule
+
+Every automation or macro should reduce beginner effort while preserving expert leverage. Hide busy machinery behind musical controls, but keep the system inspectable when the user wants to understand or customize it.
