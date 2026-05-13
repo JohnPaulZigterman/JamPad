@@ -26,7 +26,7 @@ const sample = (
   weirdness,
   density,
   moods: key ? [...moods, key] : moods,
-  returnToSilenceChance: role === "texture" || role === "noise" ? 0.35 : 0.48,
+  returnToSilenceChance: role === "texture" || role === "noise" ? 0.28 : 0.34,
   color,
 });
 

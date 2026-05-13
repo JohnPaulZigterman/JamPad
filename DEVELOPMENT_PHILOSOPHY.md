@@ -26,6 +26,10 @@ If a feature does not help the machine make, shape, preserve, or interrupt gener
 
 The `Taste Engine` now treats key and source tempo as musical taste signals. JamPad should prefer compatible samples automatically, stretch loops toward the session tempo, and keep that intelligence behind compact beginner-facing controls.
 
+The `Taste Engine` should also breathe in phrases. Clips and silences should tend to repeat long enough to feel intentional before handing control back to probability, especially in Sparse and Groove states.
+
+Tempo snapping is now a playback promise, not just a selection hint. Looped samples should lock to the global BPM using the closest half-time, normal-time, or double-time interpretation, with clean stretching doing the work under the hood.
+
 The `Taste Engine` also owns automatic mix hygiene. Samples should be gain-staged by role and normalized conservatively before the user ever reaches for manual volume controls.
 
 The `Crate Workshop` now includes a 50-sample Loopcloud export import path. Exported/pitch-locked samples may have unreliable filename keys, so their keys are treated as uncertain hints instead of hard harmonic truth.

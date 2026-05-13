@@ -1,11 +1,12 @@
 import * as Tone from "tone";
 import { Clip, MachineSnapshot } from "./types";
 import { ROLES } from "./clips";
-import { getClosestTempoRatio } from "./musicTheory";
+import { getClosestTempoRatio, getClosestTempoSync } from "./musicTheory";
 
 type PatternDisposer = () => void;
+type SamplePlayer = Tone.Player | Tone.GrainPlayer;
 type SampleVoice = {
-  player: Tone.Player;
+  player: SamplePlayer;
   gain: Tone.Gain;
 };
 
@@ -92,7 +93,7 @@ const addEvent = (events: Tone.ToneEvent[], time: Tone.Unit.Time, callback: Tone
   events.push(event);
 };
 
-const applySampleTiming = (player: Tone.Player, clip: Clip, tempo: number) => {
+const applySampleTiming = (player: SamplePlayer, clip: Clip, tempo: number) => {
   player.loop = !clip.oneShot;
   player.playbackRate = getClosestTempoRatio(clip.bpm, tempo);
 };
@@ -121,7 +122,7 @@ const measureBuffer = (buffer: Tone.ToneAudioBuffer) => {
   };
 };
 
-const getAutoMixGain = (clip: Clip, player: Tone.Player, autoMix: boolean) => {
+const getAutoMixGain = (clip: Clip, player: SamplePlayer, autoMix: boolean) => {
   if (!autoMix || clip.kind !== "sample" || !player.buffer.loaded) return 1;
 
   const { peak, rms } = measureBuffer(player.buffer);
@@ -138,13 +139,38 @@ const applySampleMix = (voice: SampleVoice, clip: Clip, autoMix: boolean) => {
   voice.gain.gain.rampTo(getAutoMixGain(clip, voice.player, autoMix), 0.08);
 };
 
+const musicalBeatOptions = [1, 2, 4, 8, 16, 32, 64];
+
+const getSourceLoopEnd = (clip: Clip, player: SamplePlayer) => {
+  if (!clip.bpm || clip.bpm <= 0 || !player.buffer.loaded) return player.buffer.duration;
+
+  const measuredBeats = player.buffer.duration * (clip.bpm / 60);
+  const closestBeats = musicalBeatOptions.reduce((best, beats) => (
+    Math.abs(beats - measuredBeats) < Math.abs(best - measuredBeats) ? beats : best
+  ), musicalBeatOptions[0]);
+  const loopEnd = closestBeats * (60 / clip.bpm);
+
+  return clamp(loopEnd, Math.min(player.buffer.duration, 0.05), player.buffer.duration);
+};
+
+const applySampleLoop = (voice: SampleVoice, clip: Clip, tempo: number) => {
+  if (clip.oneShot || !voice.player.buffer.loaded) return;
+
+  const loopEnd = getSourceLoopEnd(clip, voice.player);
+  voice.player.loopStart = 0;
+  voice.player.loopEnd = loopEnd;
+  voice.player.playbackRate = getClosestTempoSync(clip.bpm, tempo).ratio;
+};
+
 const startSamplePlayer = (voice: SampleVoice, clip: Clip, autoMix: boolean, isDisposed: () => boolean) => {
   Tone.loaded().then(() => {
     if (isDisposed()) return;
 
     applySampleMix(voice, clip, autoMix);
+    applySampleLoop(voice, clip, Tone.Transport.bpm.value);
     const { player } = voice;
-    const stretchedDuration = player.buffer.duration / player.playbackRate;
+    const loopEnd = clip.oneShot ? player.buffer.duration : getSourceLoopEnd(clip, player);
+    const stretchedDuration = loopEnd / player.playbackRate;
     const offset = clip.oneShot || stretchedDuration <= 0
       ? 0
       : (Tone.Transport.seconds % stretchedDuration) * player.playbackRate;
@@ -158,7 +184,14 @@ const schedulePattern = (clip: Clip, tempo: number, autoMix: boolean): PatternDi
 
   if (clip.kind === "sample" && clip.sampleUrl) {
     const gain = new Tone.Gain(1).connect(master);
-    const player = new Tone.Player({ url: clip.sampleUrl, loop: !clip.oneShot }).connect(gain);
+    const player = clip.oneShot
+      ? new Tone.Player({ url: clip.sampleUrl, loop: false }).connect(gain)
+      : new Tone.GrainPlayer({
+        url: clip.sampleUrl,
+        loop: true,
+        grainSize: 0.16,
+        overlap: 0.08,
+      }).connect(gain);
     const voice = { player, gain };
     let disposed = false;
     applySampleTiming(player, clip, tempo);
@@ -262,6 +295,7 @@ export const syncAudioSnapshot = (snapshot: MachineSnapshot, clips: Clip[], temp
     const activeVoice = sampleVoices.get(clip.id);
     if (activeVoice) {
       applySampleTiming(activeVoice.player, clip, tempo);
+      applySampleLoop(activeVoice, clip, tempo);
       applySampleMix(activeVoice, clip, autoMix);
     }
 

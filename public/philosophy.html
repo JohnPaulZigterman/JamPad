@@ -559,7 +559,7 @@
             <article class="flowNode" style="--accent: var(--yellow)">
               <span>First Gesture</span>
               <strong>Press Play</strong>
-              <p>The machine starts making decisions with safe defaults, tempo matching, and key lock.</p>
+              <p>The machine starts making decisions with safe defaults, calmer phrase holds, tempo snapping, and key lock.</p>
             </article>
             <article class="flowNode" style="--accent: var(--green)">
               <span>Steer</span>
@@ -707,12 +707,29 @@
             <h3>Tempo-Smart Crate</h3>
             <p>
               Compare every sample to the session tempo using half-time, normal-time, and
-              double-time interpretations, then stretch playback toward the closest musical fit.
+              double-time interpretations, then stretch looped playback toward the closest musical fit.
             </p>
             <ul>
               <li>Beginner result: loops just sit in the pocket.</li>
-              <li>Workflow result: tempo matching stays automatic during Play First.</li>
+              <li>Current build: looped samples snap to global BPM with clean granular stretching.</li>
               <li>Mutation: allow wild rates during Collapse for warped tape moments.</li>
+            </ul>
+          </article>
+
+          <article class="feature" style="--accent: var(--green)">
+            <div class="tagRow">
+              <span class="tag">Taste Engine</span>
+              <span class="tag">Phrasing</span>
+            </div>
+            <h3>Breathing Loop Memory</h3>
+            <p>
+              Individual clips and silent rests should tend to stay active for another pass before
+              the machine asks for a new event. Probability still leads, but phrases get room.
+            </p>
+            <ul>
+              <li>Beginner result: fewer frantic switches.</li>
+              <li>Current build: stronger clip holds, rest holds, and lower return-to-silence churn.</li>
+              <li>Mutation: Collapse can still cut faster when the user asks for instability.</li>
             </ul>
           </article>
 
@@ -911,9 +928,17 @@
             <h3>Built: key-aware and tempo-aware selection</h3>
             <p>
               The crate now prefers compatible keyed material and nearby half/normal/double-time
-              BPM matches, with a compact Key Lock surface.
+              BPM matches, with a compact Key Lock surface and global tempo-snapped loop playback.
             </p>
             <div class="score"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+          </article>
+          <article class="decision" style="--accent: var(--green)">
+            <h3>Built: calmer phrase behavior</h3>
+            <p>
+              Clips and silences now hold more often, so JamPad breathes in short musical phrases
+              instead of constantly re-rolling every bar.
+            </p>
+            <div class="score"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div>
           </article>
           <article class="decision" style="--accent: var(--green)">
             <h3>Built: automatic crate leveling</h3>
@@ -959,7 +984,7 @@
       </section>
 
       <footer>
-        JamPad Field Guide. Updated 2026-05-12. The living rule: if a feature does
+        JamPad Field Guide. Updated 2026-05-13. The living rule: if a feature does
         not help the machine make, shape, preserve, or interrupt generative trip-hop
         performances, it waits.
       </footer>

@@ -73,15 +73,34 @@ export const getKeyMatchWeight = (
   return confidence === "uncertain" ? 1 + (weight - 1) * 0.45 : weight;
 };
 
+export const getClosestTempoSync = (sourceBpm: number | undefined, targetBpm: number) => {
+  if (!sourceBpm || sourceBpm <= 0) {
+    return {
+      ratio: 1,
+      interpretedSourceBpm: targetBpm,
+      feel: "free" as const,
+    };
+  }
+
+  const candidates = [
+    { interpretedSourceBpm: sourceBpm / 2, feel: "half" as const },
+    { interpretedSourceBpm: sourceBpm, feel: "normal" as const },
+    { interpretedSourceBpm: sourceBpm * 2, feel: "double" as const },
+  ];
+  const closest = candidates.reduce((best, candidate) => (
+    Math.abs(candidate.interpretedSourceBpm - targetBpm) < Math.abs(best.interpretedSourceBpm - targetBpm)
+      ? candidate
+      : best
+  ), candidates[1]);
+
+  return {
+    ...closest,
+    ratio: targetBpm / closest.interpretedSourceBpm,
+  };
+};
+
 export const getClosestTempoRatio = (sourceBpm: number | undefined, targetBpm: number) => {
-  if (!sourceBpm || sourceBpm <= 0) return 1;
-
-  const sourceCandidates = [sourceBpm / 2, sourceBpm, sourceBpm * 2];
-  const closestSource = sourceCandidates.reduce((best, candidate) => (
-    Math.abs(candidate - targetBpm) < Math.abs(best - targetBpm) ? candidate : best
-  ), sourceBpm);
-
-  return targetBpm / closestSource;
+  return getClosestTempoSync(sourceBpm, targetBpm).ratio;
 };
 
 export const getTempoMatchWeight = (sourceBpm: number | undefined, targetBpm: number) => {

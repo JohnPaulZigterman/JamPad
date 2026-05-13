@@ -82,9 +82,18 @@ export const generateNextSnapshot = (
     if (roleState.isLocked || roleState.muted) continue;
 
     const active = clips.find((clip) => clip.id === roleState.activeClipId);
+    const isStableRole = profile.stableRoles.includes(role);
     const keepChance = active?.kind !== "silence"
-      ? clamp(settings.stability * (profile.stableRoles.includes(role) ? 1.25 : 0.85))
+      ? clamp(0.28 + settings.stability * (isStableRole ? 0.82 : 0.62) - weirdnessBias * 0.14)
       : 0;
+    const silenceHoldChance = active?.kind === "silence"
+      ? clamp(0.38 + settings.stability * 0.42 + silenceBias * 0.25 - weirdnessBias * 0.12)
+      : 0;
+
+    if (active?.kind === "silence" && Math.random() < silenceHoldChance) {
+      next[role] = { ...roleState, activeClipId: active.id };
+      continue;
+    }
 
     if (active && active.kind !== "silence" && Math.random() < keepChance) {
       next[role] = { ...roleState, activeClipId: active.id };
@@ -94,8 +103,8 @@ export const generateNextSnapshot = (
     const roleClips = clips.filter((clip) => clip.role === role);
     const silenceClip = roleClips.find((clip) => clip.kind === "silence")!;
     const wantsSilence =
-      Math.random() < silenceBias ||
-      (active !== undefined && active.kind !== "silence" && Math.random() < active.returnToSilenceChance);
+      Math.random() < silenceBias * 0.72 ||
+      (active !== undefined && active.kind !== "silence" && Math.random() < active.returnToSilenceChance * 0.72);
 
     if (wantsSilence) {
       next[role] = { ...roleState, activeClipId: silenceClip.id };
