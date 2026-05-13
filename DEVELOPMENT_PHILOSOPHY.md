@@ -26,6 +26,8 @@ If a feature does not help the machine make, shape, preserve, or interrupt gener
 
 The `Taste Engine` now treats key and source tempo as musical taste signals. JamPad should prefer compatible samples automatically, stretch loops toward the session tempo, and keep that intelligence behind compact beginner-facing controls.
 
+Conway's Game of Life is now a reference model for the machine's behavior: simple local rules should create surprising global form. Lanes can eventually behave like neighboring cells, where silence, loops, fills, and anchors are born, persist, or die based on nearby musical context rather than isolated randomness.
+
 The `Taste Engine` should also breathe in phrases. Clips and silences should tend to repeat long enough to feel intentional before handing control back to probability, especially in Sparse and Groove states.
 
 Tempo snapping is now a playback promise, not just a selection hint. Looped samples should lock to the global BPM using the closest half-time, normal-time, or double-time interpretation, with clean stretching doing the work under the hood.
@@ -37,3 +39,7 @@ The `Crate Workshop` now includes a 50-sample Loopcloud export import path. Expo
 ## Workflow Rule
 
 Every major direction should be placed on the user workflow map: open, play, steer, intervene, commit, or build. If a feature creates a new path, the Field Guide should show that path before the app grows around it.
+
+## Conway Rule
+
+Prefer tiny rules that generate readable emergence: stable forms, oscillators, gliders, and controlled extinction. A feature inspired by cellular automata should make JamPad feel more alive and teachable, not more abstract or difficult.
