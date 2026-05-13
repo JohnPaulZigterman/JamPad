@@ -25,3 +25,7 @@ If a feature does not help the machine make, shape, preserve, or interrupt gener
 ## Current Build Note
 
 The `Taste Engine` now treats key and source tempo as musical taste signals. JamPad should prefer compatible samples automatically, stretch loops toward the session tempo, and keep that intelligence behind compact beginner-facing controls.
+
+## Workflow Rule
+
+Every major direction should be placed on the user workflow map: open, play, steer, intervene, commit, or build. If a feature creates a new path, the Field Guide should show that path before the app grows around it.

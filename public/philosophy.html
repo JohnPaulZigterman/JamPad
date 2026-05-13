@@ -252,6 +252,90 @@
         text-transform: uppercase;
       }
 
+      .workflowMap {
+        display: grid;
+        gap: 12px;
+        padding: 14px;
+        border: 2px solid var(--ink);
+        background:
+          linear-gradient(135deg, rgba(242, 199, 68, 0.28), transparent 34%),
+          rgba(247, 241, 228, 0.82);
+      }
+
+      .workflowRail {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        align-items: stretch;
+      }
+
+      .flowNode {
+        position: relative;
+        min-height: 132px;
+        border: 2px solid var(--ink);
+        border-top: 12px solid var(--accent, var(--yellow));
+        padding: 12px;
+        background: #fff9ea;
+      }
+
+      .flowNode:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        right: -13px;
+        z-index: 2;
+        width: 16px;
+        height: 16px;
+        border-top: 3px solid var(--ink);
+        border-right: 3px solid var(--ink);
+        background: #fff9ea;
+        transform: translateY(-50%) rotate(45deg);
+      }
+
+      .flowNode span,
+      .pathCard span {
+        color: var(--muted);
+        font-size: 0.68rem;
+        font-weight: 950;
+        text-transform: uppercase;
+      }
+
+      .flowNode strong {
+        display: block;
+        margin: 8px 0;
+        font-size: 1.16rem;
+        line-height: 0.98;
+        text-transform: uppercase;
+      }
+
+      .flowNode p,
+      .pathCard p {
+        margin: 0;
+        color: #39352f;
+        line-height: 1.34;
+        font-size: 0.92rem;
+        font-weight: 560;
+      }
+
+      .pathGrid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .pathCard {
+        border: 1px solid var(--line);
+        border-left: 8px solid var(--accent, var(--yellow));
+        padding: 12px;
+        background: rgba(255, 249, 234, 0.86);
+      }
+
+      .pathCard h3 {
+        margin: 6px 0 8px;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
       .catalogue {
         display: grid;
         grid-template-columns: repeat(12, 1fr);
@@ -354,8 +438,17 @@
         .masthead,
         .sectionHeader,
         .themeGrid,
+        .workflowRail,
+        .pathGrid,
         .decisionGrid {
           grid-template-columns: 1fr;
+        }
+
+        .flowNode:not(:last-child)::after {
+          top: auto;
+          right: 50%;
+          bottom: -13px;
+          transform: translateX(50%) rotate(135deg);
         }
 
         .editorial {
@@ -391,9 +484,10 @@
           <nav class="quickIndex" aria-label="Page index">
             <p>Browse The Catalogue</p>
             <a href="#north-star"><span>01</span> North Star</a>
-            <a href="#themes"><span>02</span> Three Tech Trees</a>
-            <a href="#catalogue"><span>03</span> Direction Catalogue</a>
-            <a href="#decisions"><span>04</span> Decision Shelf</a>
+            <a href="#workflow"><span>02</span> Experience Map</a>
+            <a href="#themes"><span>03</span> Three Tech Trees</a>
+            <a href="#catalogue"><span>04</span> Direction Catalogue</a>
+            <a href="#decisions"><span>05</span> Decision Shelf</a>
           </nav>
         </div>
         <p class="deck">
@@ -443,6 +537,63 @@
           <span class="pill">Tasteful probability</span>
           <span class="pill">Lock the good part</span>
           <span class="pill">Silence is musical</span>
+        </div>
+      </section>
+
+      <section id="workflow">
+        <div class="sectionHeader">
+          <h2>Experience Map</h2>
+          <p>
+            Keep this map visible in planning. JamPad can support several user experiences, but
+            they should all orbit one playable loop: start sound quickly, steer the machine, keep
+            good accidents, and only open deeper tools when the user asks for them.
+          </p>
+        </div>
+        <div class="workflowMap">
+          <div class="workflowRail" aria-label="Primary user workflow">
+            <article class="flowNode" style="--accent: var(--yellow)">
+              <span>Entry</span>
+              <strong>Open JamPad</strong>
+              <p>Curated crate loads first. The user sees a compact instrument, not a setup chore.</p>
+            </article>
+            <article class="flowNode" style="--accent: var(--yellow)">
+              <span>First Gesture</span>
+              <strong>Press Play</strong>
+              <p>The machine starts making decisions with safe defaults, tempo matching, and key lock.</p>
+            </article>
+            <article class="flowNode" style="--accent: var(--green)">
+              <span>Steer</span>
+              <strong>Mode + Macros</strong>
+              <p>Sparse, Groove, Collapse, density, silence, weirdness, hold, tempo, and key shape taste.</p>
+            </article>
+            <article class="flowNode" style="--accent: var(--green)">
+              <span>Intervene</span>
+              <strong>Lock / Mute / Next</strong>
+              <p>The user keeps a good lane, clears space, or asks the machine for a new decision.</p>
+            </article>
+            <article class="flowNode" style="--accent: var(--blue)">
+              <span>Commit</span>
+              <strong>Keep / Export / Build</strong>
+              <p>Save the accident, render a performance, or open the crate workshop when ready.</p>
+            </article>
+          </div>
+          <div class="pathGrid">
+            <article class="pathCard" style="--accent: var(--yellow)">
+              <span>Beginner Path</span>
+              <h3>Play First</h3>
+              <p>Open, press Play, change Mode, hit Next. The workflow must stay usable with no crate editing and no theory knowledge.</p>
+            </article>
+            <article class="pathCard" style="--accent: var(--green)">
+              <span>Performer Path</span>
+              <h3>Shape And Capture</h3>
+              <p>Use locks, mutes, key, tempo, and macros to shepherd a living performance, then keep the moment.</p>
+            </article>
+            <article class="pathCard" style="--accent: var(--blue)">
+              <span>Builder Path</span>
+              <h3>Curate The Machine</h3>
+              <p>Import or buy samples, tag roles, check keys and BPM, then return to the same compact instrument surface.</p>
+            </article>
+          </div>
         </div>
       </section>
 
@@ -521,12 +672,12 @@
             <h3>One-Screen Performance Mode</h3>
             <p>
               A locked-down view for playing: no clip lists, no file concerns, only mode, lanes,
-              locks, mutes, and macro controls.
+              locks, mutes, macro controls, and a small workflow map showing where the user is.
             </p>
             <ul>
               <li>Great for first-time use and live capture.</li>
               <li>Pairs well with keyboard shortcuts and MIDI learn.</li>
-              <li>Risk: hiding too much unless `Ctrl` is obvious.</li>
+              <li>Risk: hiding too much unless Ctrl and the current path are obvious.</li>
             </ul>
           </article>
 
@@ -560,7 +711,25 @@
             </p>
             <ul>
               <li>Beginner result: loops just sit in the pocket.</li>
+              <li>Workflow result: tempo matching stays automatic during Play First.</li>
               <li>Mutation: allow wild rates during Collapse for warped tape moments.</li>
+            </ul>
+          </article>
+
+          <article class="feature wide" style="--accent: var(--yellow)">
+            <div class="tagRow">
+              <span class="tag">Pocket Instrument</span>
+              <span class="tag">Workflow</span>
+            </div>
+            <h3>Always-Visible Path Map</h3>
+            <p>
+              Add a compact visual breadcrumb to the app and keep the larger Field Guide map as the
+              planning source of truth. The user should always know whether they are playing,
+              steering, capturing, or building.
+            </p>
+            <ul>
+              <li>Beginner payoff: fewer mystery modes.</li>
+              <li>Product payoff: roadmap discussions stay grounded in real journeys.</li>
             </ul>
           </article>
 
@@ -711,6 +880,14 @@
             <p>
               The crate now prefers compatible keyed material and nearby half/normal/double-time
               BPM matches, with a compact Key Lock surface.
+            </p>
+            <div class="score"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+          </article>
+          <article class="decision" style="--accent: var(--yellow)">
+            <h3>Next likely build: workflow breadcrumb</h3>
+            <p>
+              Add a tiny in-app path indicator so users can see Play, Steer, Capture, and Build
+              options without opening the full Field Guide.
             </p>
             <div class="score"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
           </article>
